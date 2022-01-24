@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <string.h>
 
-
+//heloooo
 struct application_settings {
     struct dc_opt_settings opts;
     struct dc_setting_bool *verbose;
