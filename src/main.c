@@ -30,7 +30,6 @@
 #include <stdio.h>
 #include <string.h>
 
-//heloooo
 struct application_settings {
     struct dc_opt_settings opts;
     struct dc_setting_bool *verbose;
@@ -370,11 +369,11 @@ void run_she(c) {
 static int run(const struct dc_posix_env *env,
                struct dc_error *err,
                __attribute__((unused)) struct dc_application_settings *settings) {
-    int ret_val=0;
+    int ret_val = 0;
 
     DC_TRACE(env);
     run_she();
-   // ret_val = run_she();
+    // ret_val = run_she();
 
     return ret_val;
 }
