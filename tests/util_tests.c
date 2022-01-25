@@ -61,10 +61,10 @@ Ensure(util, get_path) {
 
 Ensure(util, parse_path) {
     test_parse_path("", dc_strs_to_array(&environ, &error, 1, NULL));
-//    test_parse_path("a", dc_strs_to_array(&environ, &error, 2, "a", NULL));
-//    test_parse_path("a:b", dc_strs_to_array(&environ, &error, 3, "a", "b", NULL));
-//    test_parse_path("a:bcde:f", dc_strs_to_array(&environ, &error, 4, "a", "bcde", "f", NULL));
-//    test_parse_path("a::b", dc_strs_to_array(&environ, &error, 3, "a", "b", NULL));
+    test_parse_path("a", dc_strs_to_array(&environ, &error, 2, "a", NULL));
+    test_parse_path("a:b", dc_strs_to_array(&environ, &error, 3, "a", "b", NULL));
+    test_parse_path("a:bcde:f", dc_strs_to_array(&environ, &error, 4, "a", "bcde", "f", NULL));
+    test_parse_path("a::b", dc_strs_to_array(&environ, &error, 3, "a", "b", NULL));
 }
 
 static void test_parse_path(const char *path_str, char **dirs) {
@@ -189,6 +189,7 @@ Ensure(util, state_to_string) {
     str = state_to_string(&environ, &error, &state);
     assert_that(str, is_equal_to_string("current_line = \"world\", fatal_error = 1"));
     free(str);
+
     free(state.current_line);
 }
 
@@ -200,7 +201,7 @@ TestSuite *util_tests(void) {
     add_test_with_context(suite, util, get_path);
     add_test_with_context(suite, util, parse_path);
     add_test_with_context(suite, util, do_reset_state);
-    //add_test_with_context(suite, util, state_to_string);
+    add_test_with_context(suite, util, state_to_string);
 
     return suite;
 }
