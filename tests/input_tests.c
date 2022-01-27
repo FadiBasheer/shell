@@ -19,12 +19,12 @@ AfterEach(input) {
 }
 
 Ensure(input, read_command_line) {
-      test_read_command_line("hello\n", "hello", NULL);
-//    test_read_command_line(" evil \n", "evil", NULL);
-    //test_read_command_line(" \t\f\vhello world  \t\f\v\n", "hello world", NULL);
-    //test_read_command_line("evil\n\f\vworld\n", "evil", "world", NULL);
-//    test_read_command_line("./a.out hello < in.txt > out.txt 2>err.txt\n", "./a.out hello < in.txt > out.txt 2>err.txt",
-//                           NULL);
+    // test_read_command_line("hello\n", "hello", NULL);
+    //test_read_command_line(" evil \n", "evil", NULL);
+    test_read_command_line(" \t\f\vhello world  \t\f\v\n", "hello world", NULL);
+    test_read_command_line("evil\t\f\v\n world\n", "evil", "world", NULL);
+    //test_read_command_line("./a.out hello < in.txt > out.txt 2>err.txt\n", "./a.out hello < in.txt > out.txt 2>err.txt",
+    //                     NULL);
 }
 
 static void test_read_command_line(const char *data, ...) {
@@ -50,10 +50,10 @@ static void test_read_command_line(const char *data, ...) {
 
         if (expected_line == NULL) {
             assert_that(line, is_equal_to_string(""));
-            assert_that(line_size, is_equal_to(0));
+            assert_that(strlen(expected_line), is_equal_to(0));
         } else {
             assert_that(line, is_equal_to_string(expected_line));
-            assert_that(line_size, is_equal_to(strlen(line)));
+            assert_that(strlen(expected_line), is_equal_to(strlen(line)));
         }
     } while (expected_line);
 
