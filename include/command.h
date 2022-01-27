@@ -29,7 +29,7 @@
 struct command
 {
   char *line;               /**< the current command line */
-  char *command;            /**< the progran/builtin to run */
+  char *command;            /**< the program/builtin to run */
   size_t argc;              /**< the number of arguments to the command */
   char **argv;              /**< the arguments to the command */
   char *stdin_file;         /**< the file to redirect stdin from */
