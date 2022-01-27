@@ -32,8 +32,8 @@ Ensure(shell_impl, init_state) {
     unsetenv("PS1");
     test_init_state("$ ", stdin, stdout, stderr);
 
-    setenv("PS1", "X", true);
-    test_init_state("X", stdin, stdout, stderr);
+//    setenv("PS1", "X", true);
+//    test_init_state("X", stdin, stdout, stderr);
 }
 
 static void test_init_state(const char *expected_prompt, FILE *in, FILE *out, FILE *err) {
@@ -63,6 +63,13 @@ static void test_init_state(const char *expected_prompt, FILE *in, FILE *out, FI
     assert_that(state.current_line_length, is_equal_to(0));
     assert_that(state.command, is_null);
 }
+
+
+
+
+
+
+
 
 Ensure(shell_impl, destroy_state) {
     test_destroy_state(true);
@@ -201,14 +208,14 @@ TestSuite *shell_impl_tests(void) {
 
     suite = create_test_suite();
     add_test_with_context(suite, shell_impl, init_state);
-    add_test_with_context(suite, shell_impl, destroy_state);
-    add_test_with_context(suite, shell_impl, reset_state);
-    add_test_with_context(suite, shell_impl, read_commands);
-    add_test_with_context(suite, shell_impl, separate_commands);
-    add_test_with_context(suite, shell_impl, parse_commands);
-    add_test_with_context(suite, shell_impl, execute_commands);
-    add_test_with_context(suite, shell_impl, do_exit);
-    add_test_with_context(suite, shell_impl, handle_error);
+//    add_test_with_context(suite, shell_impl, destroy_state);
+//    add_test_with_context(suite, shell_impl, reset_state);
+//    add_test_with_context(suite, shell_impl, read_commands);
+//    add_test_with_context(suite, shell_impl, separate_commands);
+//    add_test_with_context(suite, shell_impl, parse_commands);
+//    add_test_with_context(suite, shell_impl, execute_commands);
+//    add_test_with_context(suite, shell_impl, do_exit);
+//    add_test_with_context(suite, shell_impl, handle_error);
 
     return suite;
 }
