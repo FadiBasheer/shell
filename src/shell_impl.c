@@ -117,7 +117,6 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *ar
     stream2 = fmemopen(s->stdin, strlen(s->stdin), "r");
     s->current_line = stream;
 
-
     return SEPARATE_COMMANDS;
 }
 
@@ -146,8 +145,7 @@ int separate_commands(const struct dc_posix_env *env, struct dc_error *err,
  * @param arg the current struct state
  * @return EXECUTE_COMMANDS or PARSE_ERROR
  */
-int parse_commands(const struct dc_posix_env *env, struct dc_error *err,
-                   void *arg) {
+int parse_commands(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
     return 0;
 }
 
