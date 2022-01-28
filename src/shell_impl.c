@@ -1,6 +1,8 @@
 #include <dc_posix/dc_stdlib.h>
 #include <unistd.h>
 #include <dc_util/filesystem.h>
+#include <stdlib.h>
+#include <string.h>
 #include "shell_impl.h"
 #include "util.h"
 #include "shell_impl.h"
@@ -23,17 +25,45 @@
 int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
     char *str;
     struct state *s = (struct state *) arg;
-    s->max_line_length = _SC_ARG_MAX;
-    //do the regex complile
-    s->in_redirect_regex = "[ \\t\\f\\v]<.*";
 
-    s->out_redirect_regex = "[ \\t\\f\\v][1^2]?>[>]?.*";
-    s->err_redirect_regex = "[ \\t\\f\\v]<.*";
+    regex_t regex_in;
+    int ret_1;
+    ret_1 = regcomp(&regex_in, "[ \\t\\f\\v]<.*", 0);
+    if (ret_1) {
+        fprintf(stderr, "Could not compile regex\n");
+        exit(1);
+    }
+    s->in_redirect_regex = &regex_in;
+
+    regex_t regex_out;
+    int ret_2;
+    ret_2 = regcomp(&regex_out, "[ \\t\\f\\v][1^2]?>[>]?.*", 0);
+    if (ret_2) {
+        fprintf(stderr, "Could not compile regex\n");
+        exit(1);
+    }
+    s->out_redirect_regex = &regex_out;
+
+
+    regex_t regex_err;
+    int ret_3;
+    ret_3 = regcomp(&regex_err, "[ \\t\\f\\v]<.*", 0);
+    if (ret_3) {
+        fprintf(stderr, "Could not compile regex\n");
+        exit(1);
+    }
+    s->err_redirect_regex = &regex_err;
+
     str = get_path(env, err);
     s->path = parse_path(env, err, str);
     s->prompt = get_prompt(env, err);
+    s->current_line = NULL;
+    s->current_line_length = 0;
+    s->max_line_length = _SC_ARG_MAX;
+    s->command = NULL;
     return READ_COMMANDS;
 }
+
 
 /**
  * Free any dynamically allocated memory in the state and sets variables to NULL, 0 or false.
@@ -43,9 +73,13 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg) 
  * @param arg the current struct state
  * @return DC_FSM_EXIT
  */
-int destroy_state(const struct dc_posix_env *env, struct dc_error *err,
-                  void *arg) {
-    return 0;
+int destroy_state(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
+    char *str;
+    struct state *s = (struct state *) arg;
+    regfree(s->in_redirect_regex);
+    regfree(s->out_redirect_regex);
+    regfree(s->err_redirect_regex);
+    return DC_FSM_EXIT;
 }
 
 /**
@@ -56,9 +90,11 @@ int destroy_state(const struct dc_posix_env *env, struct dc_error *err,
  * @param arg the current struct state
  * @return READ_COMMANDS
  */
-int reset_state(const struct dc_posix_env *env, struct dc_error *err,
-                void *arg) {
-    return 0;
+int reset_state(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
+    char *str;
+    struct state *s = (struct state *) arg;
+    do_reset_state(env, err, s);
+    return READ_COMMANDS;
 }
 
 /**
@@ -70,9 +106,13 @@ int reset_state(const struct dc_posix_env *env, struct dc_error *err,
  * @param arg the current struct state
  * @return SEPARATE_COMMANDS
  */
-int read_commands(const struct dc_posix_env *env, struct dc_error *err,
-                  void *arg) {
-    return 0;
+int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
+    struct state *s = (struct state *) arg;
+    FILE *stream;
+    stream = fmemopen(s->prompt, strlen(s->prompt), "wr");
+    s->stdout = stream;
+
+    return SEPARATE_COMMANDS;
 }
 
 /**
@@ -114,7 +154,7 @@ int parse_commands(const struct dc_posix_env *env, struct dc_error *err,
  */
 int execute_commands(const struct dc_posix_env *env, struct dc_error *err,
                      void *arg) {
-    return 0;
+    return RESET_STATE;
 }
 
 
@@ -127,7 +167,10 @@ int execute_commands(const struct dc_posix_env *env, struct dc_error *err,
  * @return DESTROY_STATE
  */
 int do_exit(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
-    return 0;
+    char *str;
+    struct state *s = (struct state *) arg;
+    do_reset_state(env, err, s);
+    return DESTROY_STATE;
 }
 
 /**
@@ -140,5 +183,5 @@ int do_exit(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
  */
 int handle_error(const struct dc_posix_env *env, struct dc_error *err,
                  void *arg) {
-    return 0;
+    return DESTROY_STATE;
 }
