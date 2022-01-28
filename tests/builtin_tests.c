@@ -3,14 +3,18 @@
 
 Describe(builtin);
 
-BeforeEach(builtin) {}
+BeforeEach(builtin)
+{}
 
-AfterEach(builtin) {}
+AfterEach(builtin)
+{}
 
-Ensure(builtin, builtin_cd) {
+Ensure(builtin, builtin_cd)
+{
 }
 
-TestSuite *builtin_tests(void) {
+TestSuite *builtin_tests(void)
+{
     TestSuite *suite;
 
     suite = create_test_suite();

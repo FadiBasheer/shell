@@ -3,6 +3,7 @@
 #include <dc_util/filesystem.h>
 #include <stdlib.h>
 #include <string.h>
+#include <command.h>
 #include "shell_impl.h"
 #include "util.h"
 #include "shell_impl.h"
@@ -112,6 +113,11 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *ar
     stream = fmemopen(s->prompt, strlen(s->prompt), "wr");
     s->stdout = stream;
 
+    FILE *stream2;
+    stream2 = fmemopen(s->stdin, strlen(s->stdin), "r");
+    s->current_line = stream;
+
+
     return SEPARATE_COMMANDS;
 }
 
@@ -126,7 +132,10 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *ar
  */
 int separate_commands(const struct dc_posix_env *env, struct dc_error *err,
                       void *arg) {
-    return 0;
+    struct state *s = (struct state *) arg;
+    struct command comm;
+    s->command = &comm;
+    return PARSE_COMMANDS;
 }
 
 /**
