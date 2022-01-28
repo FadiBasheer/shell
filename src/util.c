@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include <dc_posix/dc_stdlib.h>
 
 char *get_prompt(const struct dc_posix_env *env, struct dc_error *err) {
     char *value;
@@ -12,14 +12,11 @@ char *get_prompt(const struct dc_posix_env *env, struct dc_error *err) {
     if (value == NULL || strlen(value) == 0) {
         return "$ ";
     }
-    if (strcmp(value, "ABC") == 0) {
-        return "ABC";
-    }
-    return "$ ";
+    return value;
 }
 
 char *get_path(const struct dc_posix_env *env, struct dc_error *err) {
-    return dc_getenv(env,"PATH");
+    return dc_getenv(env, "PATH");
 }
 
 static size_t count(const char *str, int c) {

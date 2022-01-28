@@ -21,7 +21,18 @@
  * @return READ_COMMANDS or INIT_ERROR
  */
 int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
-    return 0;
+    char *str;
+    struct state *s = (struct state *) arg;
+    s->max_line_length = _SC_ARG_MAX;
+    //do the regex complile
+    s->in_redirect_regex = "[ \\t\\f\\v]<.*";
+
+    s->out_redirect_regex = "[ \\t\\f\\v][1^2]?>[>]?.*";
+    s->err_redirect_regex = "[ \\t\\f\\v]<.*";
+    str = get_path(env, err);
+    s->path = parse_path(env, err, str);
+    s->prompt = get_prompt(env, err);
+    return READ_COMMANDS;
 }
 
 /**
