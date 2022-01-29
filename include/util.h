@@ -69,7 +69,7 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
  * @param state the state to display.
  * @param stream the stream to display the state on,
  */
-void display_state(const struct dc_posix_env *env, struct dc_error *err, const struct state *state, FILE *stream);
+void display_state(const struct dc_posix_env *env, const struct state *state, FILE *stream);
 
 /**
  * Display the state values to the given stream.
@@ -78,6 +78,6 @@ void display_state(const struct dc_posix_env *env, struct dc_error *err, const s
  * @param state the state to display.
  * @param stream the stream to display the state on,
  */
-char *state_to_string(const struct dc_posix_env *env, struct dc_error *err, const struct state *state);
+char *state_to_string(const struct dc_posix_env *env,  struct dc_error *err, const struct state *state);
 
 #endif // DC_SHELL_UTIL_H

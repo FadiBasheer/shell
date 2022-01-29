@@ -27,7 +27,7 @@
  *  - out_redirect_regex "[ \t\f\v][1^2]?>[>]?.*"
  *  - err_redirect_regex "[ \t\f\v]2>[>]?.*"
  *  - path the PATH environ var separated into directories
- *  - prompt the PS1 environ var or "$ " if PS1 not set
+ *  - prompt the PS1 environ var or "$" if PS1 not set
  *  - max_line_length the value of _SC_ARG_MAX (see sysconf)
  *
  * @param env the posix environment.

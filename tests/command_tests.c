@@ -13,7 +13,6 @@ static void test_parse_command(const char *expected_line,
                                bool expected_stdout_overwrite,
                                const char *expected_stderr_file,
                                bool expected_stderr_overwrite);
-
 static void expand_path(const char *expected_file, char **expanded_file);
 
 Describe(command);
@@ -21,29 +20,31 @@ Describe(command);
 static struct dc_posix_env environ;
 static struct dc_error error;
 
-BeforeEach(command) {
+BeforeEach(command)
+{
     dc_posix_env_init(&environ, NULL);
     dc_error_init(&error, NULL);
 }
 
-AfterEach(command) {
+AfterEach(command)
+{
     dc_error_reset(&error);
 }
 
-Ensure(command, parse_command) {
+Ensure(command, parse_command)
+{
     char **argv;
 
-//    argv = dc_strs_to_array(&environ, &error, 1, NULL);
-//    test_parse_command("hello",
-//                       "hello",
-//                       1,
-//                       argv,
-//                       NULL,
-//                       NULL,
-//                       false,
-//                       NULL,
-//                       false);
-
+    argv = dc_strs_to_array(&environ, &error, 1, NULL);
+    test_parse_command("hello",
+                       "hello",
+                       1,
+                       argv,
+                       NULL,
+                       NULL,
+                       false,
+                       NULL,
+                       false);
 
     argv = dc_strs_to_array(&environ, &error, 1, NULL);
     test_parse_command("./a.out 2>err.txt",
@@ -55,7 +56,7 @@ Ensure(command, parse_command) {
                        false,
                        "err.txt",
                        false);
-/*
+
     argv = dc_strs_to_array(&environ, &error, 1, NULL);
     test_parse_command("/usr/bin/ls > out.txt",
                        "/usr/bin/ls",
@@ -154,7 +155,7 @@ Ensure(command, parse_command) {
                        false,
                        NULL,
                        false);
-*/
+
     /*
     argv = dc_strs_to_array(&environ, &error, 5, NULL, "/User/ds/hello", "evil", "world", NULL);
     test_parse_command("foo ~/hello ~/def/evil \"world rocks\"",
@@ -177,7 +178,8 @@ static void test_parse_command(const char *expected_line,
                                const char *expected_stdout_file,
                                bool expected_stdout_overwrite,
                                const char *expected_stderr_file,
-                               bool expected_stderr_overwrite) {
+                               bool expected_stderr_overwrite)
+{
     struct state state;
     char *expanded_stdin_file;
     char *expanded_stdout_file;
@@ -200,7 +202,8 @@ static void test_parse_command(const char *expected_line,
     assert_that(state.command->argv[0], is_null);
     assert_that(state.command->argv[expected_argc], is_null);
 
-    for (size_t i = 1; i < expected_argc; i++) {
+    for(size_t i = 1; i < expected_argc; i++)
+    {
         assert_that(state.command->argv[i], is_equal_to_string(expected_argv[i]));
     }
 
@@ -213,21 +216,28 @@ static void test_parse_command(const char *expected_line,
     free(expanded_stdin_file);
     free(expanded_stdout_file);
     free(expanded_stderr_file);
+    destroy_state(&environ, &error, &state);
 }
 
-static void expand_path(const char *expected_file, char **expanded_file) {
-    if (expected_file == NULL) {
+static void expand_path(const char *expected_file, char **expanded_file)
+{
+    if(expected_file == NULL)
+    {
         *expanded_file = NULL;
-    } else {
+    }
+    else
+    {
         dc_expand_path(&environ, &error, expanded_file, expected_file);
 
-        if (dc_error_has_error(&error)) {
+        if(dc_error_has_error(&error))
+        {
             fail_test(expected_file);
         }
     }
 }
 
-TestSuite *command_tests(void) {
+TestSuite *command_tests(void)
+{
     TestSuite *suite;
 
     suite = create_test_suite();
