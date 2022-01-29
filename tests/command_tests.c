@@ -33,16 +33,17 @@ AfterEach(command) {
 Ensure(command, parse_command) {
     char **argv;
 
-    argv = dc_strs_to_array(&environ, &error, 1, NULL);
-    test_parse_command("hello",
-                       "hello",
-                       1,
-                       argv,
-                       NULL,
-                       NULL,
-                       false,
-                       NULL,
-                       false);
+//    argv = dc_strs_to_array(&environ, &error, 1, NULL);
+//    test_parse_command("hello",
+//                       "hello",
+//                       1,
+//                       argv,
+//                       NULL,
+//                       NULL,
+//                       false,
+//                       NULL,
+//                       false);
+
 
     argv = dc_strs_to_array(&environ, &error, 1, NULL);
     test_parse_command("./a.out 2>err.txt",
@@ -54,7 +55,7 @@ Ensure(command, parse_command) {
                        false,
                        "err.txt",
                        false);
-
+/*
     argv = dc_strs_to_array(&environ, &error, 1, NULL);
     test_parse_command("/usr/bin/ls > out.txt",
                        "/usr/bin/ls",
@@ -153,7 +154,7 @@ Ensure(command, parse_command) {
                        false,
                        NULL,
                        false);
-
+*/
     /*
     argv = dc_strs_to_array(&environ, &error, 5, NULL, "/User/ds/hello", "evil", "world", NULL);
     test_parse_command("foo ~/hello ~/def/evil \"world rocks\"",
