@@ -8,15 +8,25 @@
 
 char *get_prompt(const struct dc_posix_env *env, struct dc_error *err) {
     char *value;
+    char *str;
+
+    str = (char *) malloc(2);
+    strcpy(str, "$ ");
+
     value = getenv("PS1");
     if (value == NULL || strlen(value) == 0) {
-        return "$ ";
+        return str;
     }
-    return value;
+    char *value_dup = strdup(value);
+    return value_dup;
 }
 
 char *get_path(const struct dc_posix_env *env, struct dc_error *err) {
-    return dc_getenv(env, "PATH");
+    if (dc_getenv(env, "PATH") == NULL) {
+        return NULL;
+    }
+    char *value = strdup(dc_getenv(env, "PATH"));
+    return value;
 }
 
 static size_t count(const char *str, int c) {
@@ -64,6 +74,7 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
     err->err_code = 0;
     err->reporter = NULL;
 }
+
 /**
  * Display the state values to the given stream.
  *
@@ -71,7 +82,7 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
  * @param state the state to display.
  * @param stream the stream to display the state on,
  */
-void display_state(const struct dc_posix_env *env, const struct state *state, FILE *stream){
+void display_state(const struct dc_posix_env *env, const struct state *state, FILE *stream) {
 //    char *str;
 //    str = state_to_string(env, err, state);
 //    fprintf(stream, "%s\n", str);

@@ -3,18 +3,14 @@
 
 Describe(execute);
 
-BeforeEach(execute)
-{}
+BeforeEach(execute) {}
 
-AfterEach(execute)
-{}
+AfterEach(execute) {}
 
-Ensure(execute, execute)
-{
+Ensure(execute, execute) {
 }
 
-TestSuite *execute_tests(void)
-{
+TestSuite *execute_tests(void) {
     TestSuite *suite;
 
     suite = create_test_suite();
