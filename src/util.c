@@ -64,12 +64,18 @@ void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct
     err->err_code = 0;
     err->reporter = NULL;
 }
-
-void display_state(const struct dc_posix_env *env, struct dc_error *err, const struct state *state, FILE *stream) {
-    char *str;
-    str = state_to_string(env, err, state);
-    fprintf(stream, "%s\n", str);
-    free(str);
+/**
+ * Display the state values to the given stream.
+ *
+ * @param env the posix environment.
+ * @param state the state to display.
+ * @param stream the stream to display the state on,
+ */
+void display_state(const struct dc_posix_env *env, const struct state *state, FILE *stream){
+//    char *str;
+//    str = state_to_string(env, err, state);
+//    fprintf(stream, "%s\n", str);
+//    free(str);
 }
 
 char *state_to_string(const struct dc_posix_env *env, struct dc_error *err, const struct state *state) {
