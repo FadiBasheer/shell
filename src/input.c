@@ -36,6 +36,8 @@ char *read_command_line(const struct dc_posix_env *env, struct dc_error *err, FI
 //    //fwrite()
 
 
+
+
     char *line = NULL;
     size_t len = 0;
     ssize_t read;
