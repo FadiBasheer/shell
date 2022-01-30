@@ -13,8 +13,8 @@ set(TEST_SOURCE_LIST
         #        builtin_tests.c
         #        command_tests.c
         #        execute_tests.c
-        input_tests.c
-        #        shell_impl_tests.c
+        #        input_tests.c
+        shell_impl_tests.c
         #        shell_tests.c
         #        util_tests.c
         )
