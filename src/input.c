@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <dc_util/strings.h>
+#include <dc_posix/dc_string.h>
 
 /**
  * Read the command line from the user.
@@ -39,9 +40,7 @@ char *read_command_line(const struct dc_posix_env *env, struct dc_error *err, FI
     size_t len = 0;
     ssize_t read;
     getline(&line, &len, stream);
-    // printf("--: %s\n", line);
-
-    line = dc_str_trim(env, line);
-    printf("--: %s\n", line);
+    line = strdup(dc_str_trim(env, line));
+    *line_size = dc_strlen(env, line);
     return line;
 }
