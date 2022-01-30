@@ -109,6 +109,5 @@ char *state_to_string(const struct dc_posix_env *env, struct dc_error *err, cons
     } else {
         sprintf(line, "current_line = \"%s\", fatal_error = %d", state->current_line, state->fatal_error);
     }
-
     return line;
 }
