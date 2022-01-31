@@ -8,6 +8,7 @@
 #include "util.h"
 #include "shell_impl.h"
 #include "state.h"
+#include "input.h"
 
 /**
  * Set up the initial state:
@@ -60,6 +61,7 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg) 
     s->current_line = NULL;
     s->current_line_length = 0;
     s->max_line_length = (size_t) sysconf(_SC_ARG_MAX);
+    s->fatal_error = false;
     s->command = NULL;
     return READ_COMMANDS;
 }
@@ -90,6 +92,8 @@ int destroy_state(const struct dc_posix_env *env, struct dc_error *err, void *ar
     s->stdout = stdout;
     s->stdin = stdin;
     s->fatal_error = false;
+
+
     return DC_FSM_EXIT;
 }
 
@@ -120,22 +124,26 @@ int reset_state(const struct dc_posix_env *env, struct dc_error *err, void *arg)
 int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
     struct state *s = (struct state *) arg;
     char *prompt;
+    char *command;
+    size_t line_size;
     char *working_dir;
-    FILE *stream;
 
     working_dir = dc_get_working_dir(env, err);
 
     prompt = malloc(1 + strlen(working_dir) + 1 + 2 + strlen(s->prompt) + 1);
     sprintf(prompt, "[%s] %s", dc_get_working_dir(env, err), s->prompt);
-    printf("s->prompt2: %s\n", prompt);
+    size_t prompt_length = strlen(prompt);
+    prompt[prompt_length] = '\0';
 
-    stream = fmemopen(prompt, strlen(prompt) + 1, "r");
-    s->stdout = stream;
+    fprintf(s->stdout, "%s", prompt);
+    // fputs(prompt, s->stdout);
 
-//    FILE *stream2;
-//    stream2 = fmemopen(s->stdin, strlen(s->stdin), "r");
-//    s->current_line = stream2;
-
+    command = read_command_line(env, err, s->stdin, &line_size);
+    s->current_line = command;
+    s->current_line_length = line_size;
+    if (strlen(command) == 0) {
+        return RESET_STATE;
+    }
     return SEPARATE_COMMANDS;
 }
 
@@ -148,11 +156,26 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *ar
  * @param arg the current struct state
  * @return PARSE_COMMANDS or SEPARATE_ERROR
  */
-int separate_commands(const struct dc_posix_env *env, struct dc_error *err,
-                      void *arg) {
+int separate_commands(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
     struct state *s = (struct state *) arg;
     struct command comm;
+    char *command_line;
+    size_t line_size;
     s->command = &comm;
+    s->command->line = s->current_line;
+    s->command->command = NULL;
+    s->command->argc = 0;
+    s->command->argv = NULL;
+    s->command->stdin_file = NULL;
+    s->command->stdout_file = NULL;
+    s->command->stderr_file = NULL;
+
+    s->command->exit_code = 0;
+
+    command_line = read_command_line(env, err, s->stdin, &line_size);
+    if (strlen(command_line) == 0) {
+        return RESET_STATE;
+    }
     return PARSE_COMMANDS;
 }
 
@@ -165,6 +188,7 @@ int separate_commands(const struct dc_posix_env *env, struct dc_error *err,
  * @return EXECUTE_COMMANDS or PARSE_ERROR
  */
 int parse_commands(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
+
     return 0;
 }
 
