@@ -16,6 +16,8 @@ static void test_parse_command(const char *expected_line,
 
 static void expand_path(const char *expected_file, char **expanded_file);
 
+static void test_destroy_command(const char *expected_line);
+
 Describe(command);
 
 static struct dc_posix_env environ;
@@ -33,16 +35,18 @@ AfterEach(command) {
 Ensure(command, parse_command) {
     char **argv;
 
-    argv = dc_strs_to_array(&environ, &error, 1, NULL);
-    test_parse_command("hello",
-                       "hello",
-                       1,
-                       argv,
-                       NULL,
-                       NULL,
-                       false,
-                       NULL,
-                       false);
+//    argv = dc_strs_to_array(&environ, &error, 1, NULL);
+//    test_parse_command("hello",
+//                       "hello",
+//                       1,
+//                       argv,
+//                       NULL,
+//                       NULL,
+//                       false,
+//                       NULL,
+//                       false);
+//    dc_strs_destroy_array(&environ, 1, argv);
+//    free(argv);
 
     argv = dc_strs_to_array(&environ, &error, 1, NULL);
     test_parse_command("./a.out 2>err.txt",
@@ -54,18 +58,22 @@ Ensure(command, parse_command) {
                        false,
                        "err.txt",
                        false);
+    dc_strs_destroy_array(&environ, 1, argv);
+    free(argv);
 
-    argv = dc_strs_to_array(&environ, &error, 1, NULL);
-    test_parse_command("/usr/bin/ls > out.txt",
-                       "/usr/bin/ls",
-                       1,
-                       argv,
-                       NULL,
-                       "out.txt",
-                       false,
-                       NULL,
-                       false);
-
+//    argv = dc_strs_to_array(&environ, &error, 1, NULL);
+//    test_parse_command("/usr/bin/ls > out.txt",
+//                       "/usr/bin/ls",
+//                       1,
+//                       argv,
+//                       NULL,
+//                       "out.txt",
+//                       false,
+//                       NULL,
+//                       false);
+//    dc_strs_destroy_array(&environ, 1, argv);
+//    free(argv);
+//
     argv = dc_strs_to_array(&environ, &error, 1, NULL);
     test_parse_command("./a.out < in.txt",
                        "./a.out",
@@ -76,6 +84,8 @@ Ensure(command, parse_command) {
                        false,
                        NULL,
                        false);
+    dc_strs_destroy_array(&environ, 1, argv);
+    free(argv);
 
     argv = dc_strs_to_array(&environ, &error, 1, NULL);
     test_parse_command("./a.out < in.txt > out.txt",
@@ -87,72 +97,86 @@ Ensure(command, parse_command) {
                        false,
                        NULL,
                        false);
+    dc_strs_destroy_array(&environ, 1, argv);
+    free(argv);
 
-    argv = dc_strs_to_array(&environ, &error, 1, NULL);
-    test_parse_command("./a.out > out.txt 2>    err.txt",
-                       "./a.out",
-                       1,
-                       argv,
-                       NULL,
-                       "out.txt",
-                       false,
-                       "err.txt",
-                       false);
-
-    argv = dc_strs_to_array(&environ, &error, 1, NULL);
-    test_parse_command("./a.out < in.txt > out.txt 2>err.txt",
-                       "./a.out",
-                       1,
-                       argv,
-                       "in.txt",
-                       "out.txt",
-                       false,
-                       "err.txt",
-                       false);
-
-    argv = dc_strs_to_array(&environ, &error, 1, NULL);
-    test_parse_command("./a.out < in.txt >> out.txt 2>>err.txt",
-                       "./a.out",
-                       1,
-                       argv,
-                       "in.txt",
-                       "out.txt",
-                       true,
-                       "err.txt",
-                       true);
-
-    argv = dc_strs_to_array(&environ, &error, 1, NULL);
-    test_parse_command("./a.out < ~/abc/in.txt >> ~/out.txt 2>>~/err.txt",
-                       "./a.out",
-                       1,
-                       argv,
-                       "~/abc/in.txt",
-                       "~/out.txt",
-                       true,
-                       "~/err.txt",
-                       true);
-
-    argv = dc_strs_to_array(&environ, &error, 4, NULL, "b", "c", NULL);
-    test_parse_command("a b c",
-                       "a",
-                       3,
-                       argv,
-                       NULL,
-                       NULL,
-                       false,
-                       NULL,
-                       false);
-
-    argv = dc_strs_to_array(&environ, &error, 5, NULL, "hello", "evil", "world", NULL);
-    test_parse_command("foo hello evil world",
-                       "foo",
-                       4,
-                       argv,
-                       NULL,
-                       NULL,
-                       false,
-                       NULL,
-                       false);
+//    argv = dc_strs_to_array(&environ, &error, 1, NULL);
+//    test_parse_command("./a.out > out.txt 2>    err.txt",
+//                       "./a.out",
+//                       1,
+//                       argv,
+//                       NULL,
+//                       "out.txt",
+//                       false,
+//                       "err.txt",
+//                       false);
+//    dc_strs_destroy_array(&environ, 1, argv);
+//    free(argv);
+//
+//    argv = dc_strs_to_array(&environ, &error, 1, NULL);
+//    test_parse_command("./a.out < in.txt > out.txt 2>err.txt",
+//                       "./a.out",
+//                       1,
+//                       argv,
+//                       "in.txt",
+//                       "out.txt",
+//                       false,
+//                       "err.txt",
+//                       false);
+//    dc_strs_destroy_array(&environ, 1, argv);
+//    free(argv);
+//
+//    argv = dc_strs_to_array(&environ, &error, 1, NULL);
+//    test_parse_command("./a.out < in.txt >> out.txt 2>>err.txt",
+//                       "./a.out",
+//                       1,
+//                       argv,
+//                       "in.txt",
+//                       "out.txt",
+//                       true,
+//                       "err.txt",
+//                       true);
+//    dc_strs_destroy_array(&environ, 1, argv);
+//    free(argv);
+//
+//    argv = dc_strs_to_array(&environ, &error, 1, NULL);
+//    test_parse_command("./a.out < ~/abc/in.txt >> ~/out.txt 2>>~/err.txt",
+//                       "./a.out",
+//                       1,
+//                       argv,
+//                       "~/abc/in.txt",
+//                       "~/out.txt",
+//                       true,
+//                       "~/err.txt",
+//                       true);
+//    dc_strs_destroy_array(&environ, 1, argv);
+//    free(argv);
+//
+//    argv = dc_strs_to_array(&environ, &error, 4, NULL, "b", "c", NULL);
+//    test_parse_command("a b c",
+//                       "a",
+//                       3,
+//                       argv,
+//                       NULL,
+//                       NULL,
+//                       false,
+//                       NULL,
+//                       false);
+//    dc_strs_destroy_array(&environ, 4, argv);
+//    free(argv);
+//
+//    argv = dc_strs_to_array(&environ, &error, 5, NULL, "hello", "evil", "world", NULL);
+//    test_parse_command("foo hello evil world",
+//                       "foo",
+//                       4,
+//                       argv,
+//                       NULL,
+//                       NULL,
+//                       false,
+//                       NULL,
+//                       false);
+//    dc_strs_destroy_array(&environ, 5, argv);
+//    free(argv);
 
     /*
     argv = dc_strs_to_array(&environ, &error, 5, NULL, "/User/ds/hello", "evil", "world", NULL);
@@ -193,6 +217,10 @@ static void test_parse_command(const char *expected_line,
     state.command->line = strdup(expected_line);
     parse_command(&environ, &error, &state, state.command);
     assert_that(state.command->line, is_equal_to_string(expected_line));
+
+    printf("state.command->command,: %s\n", state.command->command);
+    printf("expected_command: %s\n", expected_command);
+
     assert_that(state.command->command, is_equal_to_string(expected_command));
     assert_that(state.command->argc, is_equal_to(expected_argc));
 
@@ -227,11 +255,38 @@ static void expand_path(const char *expected_file, char **expanded_file) {
     }
 }
 
+Ensure(command, destroy_command) {
+    test_destroy_command("ls");
+    test_destroy_command("ls -al");
+    test_destroy_command("ls -al < in > out 2> err");
+}
+
+static void test_destroy_command(const char *expected_line) {
+    struct state state;
+
+    state.stdin = NULL;
+    state.stdout = NULL;
+    state.stderr = NULL;
+    init_state(&environ, &error, &state);
+    state.command = calloc(1, sizeof(struct command));
+    state.command->line = strdup(expected_line);
+    parse_command(&environ, &error, &state, state.command);
+    destroy_command(&environ, state.command);
+    assert_that(state.command->line, is_null);
+    assert_that(state.command->command, is_null);
+    assert_that(state.command->argv, is_null);
+    assert_that(state.command->stdin_file, is_null);
+    assert_that(state.command->stdout_file, is_null);
+    assert_that(state.command->stderr_file, is_null);
+    destroy_state(&environ, &error, &state);
+}
+
 TestSuite *command_tests(void) {
     TestSuite *suite;
 
     suite = create_test_suite();
     add_test_with_context(suite, command, parse_command);
+    //add_test_with_context(suite, command, destroy_command);
 
     return suite;
 }

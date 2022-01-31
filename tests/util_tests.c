@@ -23,7 +23,7 @@ AfterEach(util) {
 }
 
 Ensure(util, get_prompt) {
-    const char *prompt;
+    char *prompt;
 
     unsetenv("PS1");
     prompt = get_prompt(&environ, &error);
@@ -54,6 +54,7 @@ Ensure(util, get_path) {
     unsetenv("PATH");
     path = get_path(&environ, &error);
     assert_that(path, is_null);
+
     for (int i = 0; paths[i]; i++) {
         setenv("PATH", paths[i], true);
         path = get_path(&environ, &error);
