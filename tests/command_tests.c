@@ -60,7 +60,7 @@ Ensure(command, parse_command) {
                        false);
     dc_strs_destroy_array(&environ, 1, argv);
     free(argv);
-
+//
 //    argv = dc_strs_to_array(&environ, &error, 1, NULL);
 //    test_parse_command("/usr/bin/ls > out.txt",
 //                       "/usr/bin/ls",
@@ -74,32 +74,32 @@ Ensure(command, parse_command) {
 //    dc_strs_destroy_array(&environ, 1, argv);
 //    free(argv);
 //
-    argv = dc_strs_to_array(&environ, &error, 1, NULL);
-    test_parse_command("./a.out < in.txt",
-                       "./a.out",
-                       1,
-                       argv,
-                       "in.txt",
-                       NULL,
-                       false,
-                       NULL,
-                       false);
-    dc_strs_destroy_array(&environ, 1, argv);
-    free(argv);
-
-    argv = dc_strs_to_array(&environ, &error, 1, NULL);
-    test_parse_command("./a.out < in.txt > out.txt",
-                       "./a.out",
-                       1,
-                       argv,
-                       "in.txt",
-                       "out.txt",
-                       false,
-                       NULL,
-                       false);
-    dc_strs_destroy_array(&environ, 1, argv);
-    free(argv);
-
+//    argv = dc_strs_to_array(&environ, &error, 1, NULL);
+//    test_parse_command("./a.out < in.txt",
+//                       "./a.out",
+//                       1,
+//                       argv,
+//                       "in.txt",
+//                       NULL,
+//                       false,
+//                       NULL,
+//                       false);
+//    dc_strs_destroy_array(&environ, 1, argv);
+//    free(argv);
+//
+//    argv = dc_strs_to_array(&environ, &error, 1, NULL);
+//    test_parse_command("./a.out < in.txt > out.txt",
+//                       "./a.out",
+//                       1,
+//                       argv,
+//                       "in.txt",
+//                       "out.txt",
+//                       false,
+//                       NULL,
+//                       false);
+//    dc_strs_destroy_array(&environ, 1, argv);
+//    free(argv);
+//
 //    argv = dc_strs_to_array(&environ, &error, 1, NULL);
 //    test_parse_command("./a.out > out.txt 2>    err.txt",
 //                       "./a.out",
