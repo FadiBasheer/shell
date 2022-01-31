@@ -10,19 +10,16 @@ Describe(shell);
 static struct dc_posix_env environ;
 static struct dc_error error;
 
-BeforeEach(shell)
-{
+BeforeEach(shell) {
     dc_posix_env_init(&environ, NULL);
     dc_error_init(&error, NULL);
 }
 
-AfterEach(shell)
-{
+AfterEach(shell) {
     dc_error_reset(&error);
 }
 
-Ensure(shell, run_shell)
-{
+Ensure(shell, run_shell) {
     char *dir;
     char str[1024];
 
@@ -41,8 +38,7 @@ Ensure(shell, run_shell)
     free(dir);
 }
 
-static void test_run_shell(const char *in, const char *expected_out, const char *expected_err)
-{
+static void test_run_shell(const char *in, const char *expected_out, const char *expected_err) {
     char *in_buf;
     char out_buf[1024];
     char err_buf[1024];
@@ -69,8 +65,7 @@ static void test_run_shell(const char *in, const char *expected_out, const char 
     free(in_buf);
 }
 
-TestSuite *shell_tests(void)
-{
+TestSuite *shell_tests(void) {
     TestSuite *suite;
 
     suite = create_test_suite();
