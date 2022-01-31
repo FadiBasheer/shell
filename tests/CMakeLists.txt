@@ -10,8 +10,8 @@ set(TEST_HEADER_LIST
 
 set(TEST_SOURCE_LIST
         main.c
-        #        builtin_tests.c
-        command_tests.c
+        builtin_tests.c
+        #        command_tests.c
         #        execute_tests.c
         #        input_tests.c
         #        shell_impl_tests.c

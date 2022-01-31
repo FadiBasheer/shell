@@ -2,7 +2,10 @@
 #include <command.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <wordexp.h>
 #include <string.h>
+#include <dc_util/path.h>
+#include <cgreen/assertions.h>
 
 
 static void status_check(int status, regex_t regex) {
@@ -15,6 +18,19 @@ static void status_check(int status, regex_t regex) {
         fprintf(stderr, msg);
         free(msg);
         exit(EXIT_FAILURE);
+    }
+}
+
+static void
+expand_path(const struct dc_posix_env *env, struct dc_error *err, const char *expected_file, char **expanded_file) {
+    if (expected_file == NULL) {
+        *expanded_file = NULL;
+    } else {
+        dc_expand_path(env, err, expanded_file, expected_file);
+
+        if (dc_error_has_error(err)) {
+            fail_test(expected_file);
+        }
     }
 }
 
@@ -34,13 +50,6 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
     regex_t regex_in, regex_out, regex_err, regex_err2, regex_out2;
     int status_in, status_out, status_err;
     char *string;
-
-
-    state->command->argv = calloc(3, sizeof(char *));
-
-    state->command->argv[0] = NULL;
-    state->command->argc = 1;
-
 
     status_err = regcomp(&regex_err, "[ \\t\\f\\v]2>[>]?.*", REG_EXTENDED);
     status_out = regcomp(&regex_out, "[ \\t\\f\\v][1^2]?>[>]?.*", REG_EXTENDED);
@@ -73,17 +82,25 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
         str[length] = '\0';
         printf("%s\n", str);
 
-        status_err = regcomp(&regex_err2, "[^>]*$", REG_EXTENDED);
+        char *ret;
+        ret = strstr(str, ">>");
+        if (ret)
+            state->command->stderr_overwrite = true;
+
+
+        status_err = regcomp(&regex_err2, "[^> *]*$", REG_EXTENDED);
         status_check(status_err, regex_err2);
         matched2 = regexec(&regex_err2, str, 1, &match, 0);
         if (matched2 == 0) {
             char *str2;
+            char *expanded_stderr_file;
             regoff_t length2 = match.rm_eo - match.rm_so;
             str2 = malloc(length2 + 1);
             strncpy(str2, &str[match.rm_so], length2);
             str2[length2] = '\0';
-            printf("\nfinal string erro: %s\n\n", str2);
-            command->stderr_file = strdup(str2);
+            expand_path(env, err, str2, &expanded_stderr_file);
+            printf("\nexpanded_stdout_file:%s\n", expanded_stderr_file);
+            command->stderr_file = strdup(expanded_stderr_file);
             free(str2);
         }
 
@@ -112,7 +129,13 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
         str = malloc(length + 1);
         strncpy(str, &string[match.rm_so], length);
         str[length] = '\0';
-        printf("%s\n", str);
+        printf("str out: %s\n", str);
+
+        char *ret;
+        ret = strstr(str, ">>");
+        if (ret)
+            state->command->stdout_overwrite = true;
+
 
         status_err = regcomp(&regex_out2, "[^> ]*$", REG_EXTENDED);
         status_check(status_err, regex_out2);
@@ -120,13 +143,14 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
 
         if (matched2 == 0) {
             char *str2;
+            char *expanded_stdout_file;
             regoff_t length2 = match.rm_eo - match.rm_so;
-
             str2 = malloc(length2 + 1);
             strncpy(str2, &str[match.rm_so], length2);
             str2[length2] = '\0';
-            printf("\nfinal string out:%s\n\n", str2);
-            command->stdout_file = strdup(str2);
+            expand_path(env, err, str2, &expanded_stdout_file);
+            printf("\nexpanded_stdout_file:%s\n", expanded_stdout_file);
+            command->stdout_file = strdup(expanded_stdout_file);
             free(str2);
         }
 
@@ -157,19 +181,20 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
         str[length] = '\0';
         printf("%s\n", str);
 
-        status_err = regcomp(&regex_out2, "[^> ]*$", REG_EXTENDED);
+        status_err = regcomp(&regex_out2, "[^< *]*$", REG_EXTENDED);
         status_check(status_err, regex_out2);
         matched2 = regexec(&regex_out2, str, 1, &match, 0);
 
         if (matched2 == 0) {
             char *str2;
+            char *expanded_stdin_file;
             regoff_t length2 = match.rm_eo - match.rm_so;
-
             str2 = malloc(length2 + 1);
             strncpy(str2, &str[match.rm_so], length2);
             str2[length2] = '\0';
-            printf("\nfinal string in:%s\n\n", str2);
-            command->stdin_file= strdup(str2);
+            expand_path(env, err, str2, &expanded_stdin_file);
+            printf("\nexpanded_stdin_file:%s\n", expanded_stdin_file);
+            command->stdin_file = strdup(expanded_stdin_file);
             free(str2);
         }
 
@@ -187,8 +212,25 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
     regfree(&regex_in);
 
 
+    wordexp_t p;
+    char **w;
+
+    wordexp(string, &p, 0);
+    w = p.we_wordv;
+    state->command->argv = calloc(p.we_wordc + 2, sizeof(char *));
+    state->command->argc = p.we_wordc;
+
+    for (int i = 0; i < p.we_wordc; i++) {
+        printf("dasd: %s\n", w[i]);
+        state->command->argv[i] = strdup(w[i]);
+    }
+    state->command->argv[0] = NULL;
+    printf("wordc: %zu\n", p.we_wordc);
+
+
     printf("comanddddd: %s\n", string);
-    state->command->command = strdup(string);
+    state->command->command = strdup(w[0]);
+    wordfree(&p);
     free(string);
 }
 
