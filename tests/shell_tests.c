@@ -29,12 +29,12 @@ Ensure(shell, run_shell) {
     sprintf(str, "[%s] >>>>", dir);
     test_run_shell("exit\n", str, "");
 
-    unsetenv("PS1");
-    sprintf(str, "[%s] $ ", dir);
-    test_run_shell("exit\n", str, "");
-
-    sprintf(str, "[%s] $ 0\n[/] $ ", dir);
-    test_run_shell("cd /\nexit\n", str, "");
+//    unsetenv("PS1");
+//    sprintf(str, "[%s] $ ", dir);
+//    test_run_shell("exit\n", str, "");
+//
+//    sprintf(str, "[%s] $ 0\n[/] $ ", dir);
+//    test_run_shell("cd /\nexit\n", str, "");
     free(dir);
 }
 
