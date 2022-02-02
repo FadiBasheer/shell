@@ -4,7 +4,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-static void test_execute(const char *cmd, size_t argc, char **argv, char **path, bool check_exit_code, int expected_exit_code, const char *out_file_name, const char *err_file_name);
+static void
+test_execute(const char *cmd, size_t argc, char **argv, char **path, bool check_exit_code, int expected_exit_code,
+             const char *out_file_name, const char *err_file_name);
+
 static void check_redirection(const char *file_name);
 
 Describe(execute);
@@ -12,19 +15,16 @@ Describe(execute);
 static struct dc_posix_env environ;
 static struct dc_error error;
 
-BeforeEach(execute)
-{
+BeforeEach(execute) {
     dc_posix_env_init(&environ, NULL);
     dc_error_init(&error, NULL);
 }
 
-AfterEach(execute)
-{
+AfterEach(execute) {
     dc_error_reset(&error);
 }
 
-Ensure(execute, execute)
-{
+Ensure(execute, execute) {
     char **path;
     char **argv;
     char template[16];
@@ -61,8 +61,9 @@ Ensure(execute, execute)
     free(path);
 }
 
-static void test_execute(const char *cmd, size_t argc, char **argv, char **path, bool check_exit_code, int expected_exit_code, const char *out_file_name, const char *err_file_name)
-{
+static void
+test_execute(const char *cmd, size_t argc, char **argv, char **path, bool check_exit_code, int expected_exit_code,
+             const char *out_file_name, const char *err_file_name) {
     struct command command;
 
     memset(&command, 0, sizeof(struct command));
@@ -70,20 +71,17 @@ static void test_execute(const char *cmd, size_t argc, char **argv, char **path,
     command.argc = argc;
     command.argv = argv;
 
-    if(out_file_name)
-    {
+    if (out_file_name) {
         command.stdout_file = strdup(out_file_name);
     }
 
-    if(err_file_name)
-    {
+    if (err_file_name) {
         command.stderr_file = strdup(err_file_name);
     }
 
     execute(&environ, &error, &command, path);
 
-    if(check_exit_code)
-    {
+    if (check_exit_code) {
         assert_that(command.exit_code, is_equal_to(expected_exit_code));
     }
 
@@ -94,10 +92,8 @@ static void test_execute(const char *cmd, size_t argc, char **argv, char **path,
     dc_error_reset(&error);
 }
 
-static void check_redirection(const char *file_name)
-{
-    if(file_name)
-    {
+static void check_redirection(const char *file_name) {
+    if (file_name) {
         struct stat statbuf;
         int status;
 
@@ -108,8 +104,7 @@ static void check_redirection(const char *file_name)
     }
 }
 
-TestSuite *execute_tests(void)
-{
+TestSuite *execute_tests(void) {
     TestSuite *suite;
 
     suite = create_test_suite();

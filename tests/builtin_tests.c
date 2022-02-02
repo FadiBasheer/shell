@@ -37,30 +37,30 @@ Ensure(builtin, builtin_cd) {
     test_builtin_cd("cd ~\n", "cd", 2, argv, path, NULL);
     free(path);
 
-//    dc_expand_path(&environ, &error, &path, "~/");
-//    // remove the trailing space
-//    path[strlen(path) - 1] = '\0';
-//    argv = dc_strs_to_array(&environ, &error, 3, NULL, path, NULL);
-//    test_builtin_cd("cd ~\n", "cd", 2, argv, path, NULL);
-//    free(path);
-//
-//    chdir("/");
-//    dc_expand_path(&environ, &error, &path, "~");
-//    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
-//    test_builtin_cd("cd\n", "cd", 1, argv, path, NULL);
-//    free(path);
-//
-//    chdir("/tmp");
-//    argv = dc_strs_to_array(&environ, &error, 3, NULL, "/dev/null", NULL);
-//    test_builtin_cd("cd /dev/null\n", "cd", 2, argv, "/tmp", "/dev/null: is not a directory\n");
-//    dc_error_reset(&error);
-//
-//    strcpy(template, "/tmp/fileXXXXXX");
-//    mkdtemp(template);
-//    rmdir(template);
-//    sprintf(message, "%s: does not exist\n", template);
-//    argv = dc_strs_to_array(&environ, &error, 3, NULL, template, NULL);
-//    test_builtin_cd("cd fixme\n", "cd", 2, argv, "/tmp", message);
+    dc_expand_path(&environ, &error, &path, "~/");
+    // remove the trailing space
+    path[strlen(path) - 1] = '\0';
+    argv = dc_strs_to_array(&environ, &error, 3, NULL, path, NULL);
+    test_builtin_cd("cd ~\n", "cd", 2, argv, path, NULL);
+    free(path);
+
+    chdir("/");
+    dc_expand_path(&environ, &error, &path, "~");
+    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
+    test_builtin_cd("cd\n", "cd", 1, argv, path, NULL);
+    free(path);
+
+    chdir("/tmp");
+    argv = dc_strs_to_array(&environ, &error, 3, NULL, "/dev/null", NULL);
+    test_builtin_cd("cd /dev/null\n", "cd", 2, argv, "/tmp", "/dev/null: is not a directory\n");
+    dc_error_reset(&error);
+
+    strcpy(template, "/tmp/fileXXXXXX");
+    mkdtemp(template);
+    rmdir(template);
+    sprintf(message, "%s: does not exist\n", template);
+    argv = dc_strs_to_array(&environ, &error, 3, NULL, template, NULL);
+    test_builtin_cd("cd fixme\n", "cd", 2, argv, "/tmp", message);
 }
 
 static void test_builtin_cd(const char *line, const char *cmd, size_t argc, char **argv, const char *expected_dir,
