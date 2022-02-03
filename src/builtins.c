@@ -23,8 +23,6 @@
  */
 void builtin_cd(const struct dc_posix_env *env, struct dc_error *err,
                 struct command *command, FILE *errstream) {
-//    printf("fadi path: %s\n", command->argv[1]);
-//    printf("path: %s\n", dc_get_working_dir(env, err));
     if (command->argv[1] == NULL) {
         char *path;
         dc_expand_path(env, err, &path, "~");
@@ -33,6 +31,9 @@ void builtin_cd(const struct dc_posix_env *env, struct dc_error *err,
         }
     } else {
         if (dc_chdir(env, err, command->argv[1]) != 0) {
+            char *path;
+            path = strdup(command->argv[1]);
+
             command->exit_code = 1;
             if (dc_error_is_errno(err, EACCES)) {
                 fprintf(errstream, "Search permission is denied for any component of the pathname.");
@@ -46,15 +47,10 @@ void builtin_cd(const struct dc_posix_env *env, struct dc_error *err,
                         "The length of a component of a pathname is longer than {NAME_MAX}");
             }
             if (dc_error_is_errno(err, ENOENT)) {
-                char *str = strcat(command->argv[1], ": does not exist\n");
-                fprintf(errstream, "%s", ": is not a directory\n");
-                free(str);
+                fprintf(errstream, "%s: does not exist\n", path);
             }
             if (dc_error_is_errno(err, ENOTDIR)) {
-                char *str = strcat(command->argv[1], ": is not a directory\n");
-                printf("directory: %s\n\n", str);
-                fprintf(errstream, "%s", ": is not a directory\n");
-                free(str);
+                fprintf(errstream, "%s: is not a directory\n", path);
             }
         }
     }

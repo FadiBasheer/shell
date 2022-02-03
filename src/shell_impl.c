@@ -9,6 +9,7 @@
 #include "shell_impl.h"
 #include "state.h"
 #include "input.h"
+#include "builtins.h"
 
 /**
  * Set up the initial state:
@@ -92,8 +93,6 @@ int destroy_state(const struct dc_posix_env *env, struct dc_error *err, void *ar
     s->stdout = stdout;
     s->stdin = stdin;
     s->fatal_error = false;
-
-
     return DC_FSM_EXIT;
 }
 
@@ -158,24 +157,16 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *ar
  */
 int separate_commands(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
     struct state *s = (struct state *) arg;
-    struct command comm;
-    char *command_line;
-    size_t line_size;
-    s->command = &comm;
-    s->command->line = s->current_line;
+    s->command = calloc(1, sizeof(struct command));
+
+    s->command->line = strdup(s->current_line);
     s->command->command = NULL;
     s->command->argc = 0;
     s->command->argv = NULL;
     s->command->stdin_file = NULL;
     s->command->stdout_file = NULL;
     s->command->stderr_file = NULL;
-
     s->command->exit_code = 0;
-
-    command_line = read_command_line(env, err, s->stdin, &line_size);
-    if (strlen(command_line) == 0) {
-        return RESET_STATE;
-    }
     return PARSE_COMMANDS;
 }
 
@@ -188,8 +179,12 @@ int separate_commands(const struct dc_posix_env *env, struct dc_error *err, void
  * @return EXECUTE_COMMANDS or PARSE_ERROR
  */
 int parse_commands(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
-
-    return 0;
+    struct state *s = (struct state *) arg;
+    parse_command(env, err, s, s->command);
+    if (dc_error_has_error(err)) {
+        return ERROR;
+    }
+    return EXECUTE_COMMANDS;
 }
 
 
@@ -202,8 +197,11 @@ int parse_commands(const struct dc_posix_env *env, struct dc_error *err, void *a
  * @param arg the current struct state
  * @return EXIT (if command->command is exit), RESET_STATE or EXECUTE_ERROR
  */
-int execute_commands(const struct dc_posix_env *env, struct dc_error *err,
-                     void *arg) {
+int execute_commands(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
+    struct state *s = (struct state *) arg;
+    if (strcmp(s->command->command, "cd") == 0) {
+        builtin_cd(env, err, s->command, s->stderr);
+    }
     return RESET_STATE;
 }
 
@@ -217,7 +215,6 @@ int execute_commands(const struct dc_posix_env *env, struct dc_error *err,
  * @return DESTROY_STATE
  */
 int do_exit(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
-    char *str;
     struct state *s = (struct state *) arg;
     do_reset_state(env, err, s);
     return DESTROY_STATE;
@@ -231,7 +228,15 @@ int do_exit(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
  * @param arg the current struct state
  * @return RESET_STATE or DESTROY_STATE (if state->fatal_error is true)
  */
-int handle_error(const struct dc_posix_env *env, struct dc_error *err,
-                 void *arg) {
-    return DESTROY_STATE;
+int handle_error(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
+    struct state *s = (struct state *) arg;
+    if (s->current_line == NULL) {
+        fprintf(s->stderr, "internal error (%d) %s\n", err->err_code, err->message);
+    } else {
+        fprintf(s->stderr, "internal error (%d) %s: \"%s\"\n", err->err_code, err->message, s->current_line);
+    }
+    if (s->fatal_error) {
+        return DESTROY_STATE;
+    }
+    return RESET_STATE;
 }

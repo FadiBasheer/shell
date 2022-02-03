@@ -5,7 +5,6 @@
 #include <wordexp.h>
 #include <string.h>
 #include <dc_util/path.h>
-#include <cgreen/assertions.h>
 
 
 static void status_check(int status, regex_t regex) {
@@ -21,16 +20,11 @@ static void status_check(int status, regex_t regex) {
     }
 }
 
-static void
-expand_path(const struct dc_posix_env *env, struct dc_error *err, const char *expected_file, char **expanded_file) {
+static void expand_path(const struct dc_posix_env *env, struct dc_error *err, const char *expected_file, char **expanded_file) {
     if (expected_file == NULL) {
         *expanded_file = NULL;
     } else {
         dc_expand_path(env, err, expanded_file, expected_file);
-
-        if (dc_error_has_error(err)) {
-            fail_test(expected_file);
-        }
     }
 }
 
@@ -138,6 +132,8 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
 
 
         status_err = regcomp(&regex_out2, "[^> ]*$", REG_EXTENDED);
+
+
         status_check(status_err, regex_out2);
         matched2 = regexec(&regex_out2, str, 1, &match, 0);
 
@@ -211,7 +207,6 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
     }
     regfree(&regex_in);
 
-
     wordexp_t p;
     char **w;
 
@@ -228,7 +223,9 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
     printf("wordc: %zu\n", p.we_wordc);
 
 
-    printf("comanddddd: %s\n", string);
+    printf("comanddddd: %s\n\n\n", string);
+
+    printf("fdsafsdfsadfdfasafsadfafsaffssfsafs: %s\n\n\n", w[0]);
     state->command->command = strdup(w[0]);
     wordfree(&p);
     free(string);

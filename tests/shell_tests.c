@@ -29,7 +29,7 @@ Ensure(shell, run_shell) {
     sprintf(str, "[%s] >>>>", dir);
     test_run_shell("exit\n", str, "");
 
-//    unsetenv("PS1");
+  unsetenv("PS1");
 //    sprintf(str, "[%s] $ ", dir);
 //    test_run_shell("exit\n", str, "");
 //

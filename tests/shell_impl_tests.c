@@ -240,10 +240,13 @@ static void test_separate_commands(const char *command, const char *expected_com
     }
 
     next_state = separate_commands(&environ, &error, &state);
+
     assert_that(next_state, is_equal_to(PARSE_COMMANDS));
     assert_false(state.fatal_error);
     assert_that(state.command, is_not_null);
     assert_that(state.command->line, is_equal_to_string(state.current_line));
+
+
     assert_that(state.command->line, is_not_equal_to(state.current_line));
     assert_that(state.command->command, is_null);
     assert_that(state.command->argc, is_equal_to(0));
@@ -453,7 +456,9 @@ TestSuite *shell_impl_tests(void) {
     add_test_with_context(suite, shell_impl, read_commands);
     add_test_with_context(suite, shell_impl, separate_commands);
     add_test_with_context(suite, shell_impl, parse_commands);
-    add_test_with_context(suite, shell_impl, execute_commands);
+
+    //add_test_with_context(suite, shell_impl, execute_commands);
+
     add_test_with_context(suite, shell_impl, do_exit);
     add_test_with_context(suite, shell_impl, handle_error);
 
