@@ -128,9 +128,11 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *ar
     char *working_dir;
 
     working_dir = dc_get_working_dir(env, err);
-
+    if (dc_error_has_error(err)) {
+        s->fatal_error = true;
+    }
     prompt = malloc(1 + strlen(working_dir) + 1 + 2 + strlen(s->prompt) + 1);
-    sprintf(prompt, "[%s] %s", dc_get_working_dir(env, err), s->prompt);
+    sprintf(prompt, "[%s] %s", working_dir, s->prompt);
     size_t prompt_length = strlen(prompt);
     prompt[prompt_length] = '\0';
 
@@ -138,11 +140,24 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *ar
     // fputs(prompt, s->stdout);
 
     command = read_command_line(env, err, s->stdin, &line_size);
-    s->current_line = command;
-    s->current_line_length = line_size;
+
+    printf("command: %s\n", command);
+    printf("line_size: %zu\n", line_size);
+
+    if (dc_error_has_error(err)) {
+        s->fatal_error = true;
+        return ERROR;
+    }
     if (strlen(command) == 0) {
         return RESET_STATE;
     }
+    s->current_line = strdup(command);
+    s->current_line_length = line_size;
+
+    free(prompt);
+    free(command);
+    free(working_dir);
+
     return SEPARATE_COMMANDS;
 }
 
@@ -158,7 +173,6 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *ar
 int separate_commands(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
     struct state *s = (struct state *) arg;
     s->command = calloc(1, sizeof(struct command));
-
     s->command->line = strdup(s->current_line);
     s->command->command = NULL;
     s->command->argc = 0;
@@ -167,6 +181,7 @@ int separate_commands(const struct dc_posix_env *env, struct dc_error *err, void
     s->command->stdout_file = NULL;
     s->command->stderr_file = NULL;
     s->command->exit_code = 0;
+    printf(" s->command->line: %s\n", s->current_line);
     return PARSE_COMMANDS;
 }
 

@@ -20,7 +20,8 @@ static void status_check(int status, regex_t regex) {
     }
 }
 
-static void expand_path(const struct dc_posix_env *env, struct dc_error *err, const char *expected_file, char **expanded_file) {
+static void
+expand_path(const struct dc_posix_env *env, struct dc_error *err, const char *expected_file, char **expanded_file) {
     if (expected_file == NULL) {
         *expanded_file = NULL;
     } else {
@@ -60,7 +61,7 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
 
     strcpy(string, command->line);
 
-    printf("%s\n", string);
+    printf("stringstringstringstring: %s\n", command->line);
 
     /////////////////////////////////////////////////// err ////////////////////////////////////
     matched = regexec(&regex_err, string, 1, &match, 0);
