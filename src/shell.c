@@ -9,33 +9,6 @@
 #include <dc_posix/dc_time.h>
 
 
-static void error_reporter(const struct dc_error *err);
-
-static void trace_reporter(const struct dc_posix_env *env, const char *file_name,
-                           const char *function_name, size_t line_number);
-
-static void will_change_state(const struct dc_posix_env *env,
-                              struct dc_error *err,
-                              const struct dc_fsm_info *info,
-                              int from_state_id,
-                              int to_state_id);
-
-static void did_change_state(const struct dc_posix_env *env,
-                             struct dc_error *err,
-                             const struct dc_fsm_info *info,
-                             int from_state_id,
-                             int to_state_id,
-                             int next_id);
-
-static void bad_change_state(const struct dc_posix_env *env,
-                             struct dc_error *err,
-                             const struct dc_fsm_info *info,
-                             int from_state_id,
-                             int to_state_id);
-
-
-static int state_error(const struct dc_posix_env *env, struct dc_error *err, void *arg);
-
 static struct dc_fsm_transition transitions[] = {
         {DC_FSM_INIT,       INIT_STATE,        init_state},
         {INIT_STATE,        READ_COMMANDS,     read_commands},
@@ -86,63 +59,5 @@ int run_shell(const struct dc_posix_env *env, struct dc_error *error, FILE *in, 
 }
 
 
-static void error_reporter(const struct dc_error *err) {
-    fprintf(stderr, "Error: \"%s\" - %s : %s @ %zu\n", err->message, err->file_name, err->function_name,
-            err->line_number);
-}
-
-static void trace_reporter(const struct dc_posix_env *env, const char *file_name,
-                           const char *function_name, size_t line_number) {
-    fprintf(stderr, "Entering: %s : %s @ %zu\n", file_name, function_name, line_number);
-}
-
-static void will_change_state(const struct dc_posix_env *env,
-                              struct dc_error *err,
-                              const struct dc_fsm_info *info,
-                              int from_state_id,
-                              int to_state_id) {
-    printf("%s: will change %d -> %d\n", dc_fsm_info_get_name(info), from_state_id, to_state_id);
-}
-
-static void did_change_state(const struct dc_posix_env *env,
-                             struct dc_error *err,
-                             const struct dc_fsm_info *info,
-                             int from_state_id,
-                             int to_state_id,
-                             int next_id) {
-    printf("%s: did change %d -> %d moving to %d\n", dc_fsm_info_get_name(info), from_state_id, to_state_id, next_id);
-}
-
-static void bad_change_state(const struct dc_posix_env *env,
-                             struct dc_error *err,
-                             const struct dc_fsm_info *info,
-                             int from_state_id,
-                             int to_state_id) {
-    printf("%s: bad change %d -> %d\n", dc_fsm_info_get_name(info), from_state_id, to_state_id);
-}
-
-
-static int
-change_colour(const struct dc_posix_env *env, struct dc_error *err, const char *name, const struct timespec *time,
-              int next_state) {
-    int ret_val;
-
-    printf("%s\n", name);
-    dc_nanosleep(env, err, time, NULL);
-
-    if (dc_error_has_no_error(err)) {
-        ret_val = next_state;
-    } else {
-        ret_val = ERROR;
-    }
-
-    return ret_val;
-}
-
-static int state_error(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
-    printf("ERROR\n");
-
-    return DC_FSM_EXIT;
-}
 
 
