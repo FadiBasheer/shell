@@ -43,10 +43,6 @@ void execute(const struct dc_posix_env *env, struct dc_error *err, struct comman
         status = handle_run_error(env, err);
         exit(status);
 
-    } else if (pid < 0) {
-        // Error forking
-        perror("lsh");
-
     } else {
         // Parent process
         do {

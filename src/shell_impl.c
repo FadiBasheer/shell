@@ -130,6 +130,7 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *ar
     working_dir = dc_get_working_dir(env, err);
     if (dc_error_has_error(err)) {
         s->fatal_error = true;
+        return ERROR;
     }
     prompt = malloc(1 + strlen(working_dir) + 1 + 2 + strlen(s->prompt) + 1);
     sprintf(prompt, "[%s] %s", working_dir, s->prompt);
@@ -149,14 +150,18 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *ar
         return ERROR;
     }
     if (strlen(command) == 0) {
+        s->current_line = strdup("");
+        s->current_line_length = 0;
+
+        printf("RESET_STATE\n");
         return RESET_STATE;
     }
     s->current_line = strdup(command);
     s->current_line_length = line_size;
 
-    free(prompt);
-    free(command);
-    free(working_dir);
+//    free(prompt);
+//    free(command);
+//    free(working_dir);
 
     return SEPARATE_COMMANDS;
 }
@@ -216,7 +221,10 @@ int execute_commands(const struct dc_posix_env *env, struct dc_error *err, void 
     struct state *s = (struct state *) arg;
     if (strcmp(s->command->command, "cd") == 0) {
         builtin_cd(env, err, s->command, s->stderr);
+    } else if (strcmp(s->command->command, "exit") == 0) {
+        return EXIT;
     }
+
     return RESET_STATE;
 }
 

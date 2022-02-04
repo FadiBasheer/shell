@@ -6,24 +6,26 @@
 #include <dc_util/strings.h>
 #include <unistd.h>
 
-static void test_builtin_cd(const char *line, const char *cmd, size_t argc, char **argv, const char *expected_dir,
-                            const char *expected_message);
+static void test_builtin_cd(const char *line, const char *cmd, size_t argc, char **argv, const char *expected_dir, const char *expected_message);
 
 Describe(builtin);
 
 static struct dc_posix_env environ;
 static struct dc_error error;
 
-BeforeEach(builtin) {
+BeforeEach(builtin)
+{
     dc_posix_env_init(&environ, NULL);
     dc_error_init(&error, NULL);
 }
 
-AfterEach(builtin) {
+AfterEach(builtin)
+{
     dc_error_reset(&error);
 }
 
-Ensure(builtin, builtin_cd) {
+Ensure(builtin, builtin_cd)
+{
     char **argv;
     char *path;
     char template[16];
@@ -63,8 +65,8 @@ Ensure(builtin, builtin_cd) {
     test_builtin_cd("cd fixme\n", "cd", 2, argv, "/tmp", message);
 }
 
-static void test_builtin_cd(const char *line, const char *cmd, size_t argc, char **argv, const char *expected_dir,
-                            const char *expected_message) {
+static void test_builtin_cd(const char *line, const char *cmd, size_t argc, char **argv, const char *expected_dir, const char *expected_message)
+{
     struct command command;
     char message[1024];
     FILE *stderr_file;
@@ -79,13 +81,16 @@ static void test_builtin_cd(const char *line, const char *cmd, size_t argc, char
     stderr_file = fmemopen(message, sizeof(message), "w");
     builtin_cd(&environ, &error, &command, stderr_file);
 
-    if (dc_error_has_no_error(&error)) {
+    if(dc_error_has_no_error(&error))
+    {
         // TODO: wny does this hang if chdir failed?
         working_dir = dc_get_working_dir(&environ, &error);
         assert_that(working_dir, is_equal_to_string(expected_dir));
         assert_that(command.exit_code, is_equal_to(0));
         free(working_dir);
-    } else {
+    }
+    else
+    {
         fflush(stderr_file);
         assert_that(message, is_equal_to_string(expected_message));
         assert_that(command.exit_code, is_equal_to(1));
@@ -95,7 +100,8 @@ static void test_builtin_cd(const char *line, const char *cmd, size_t argc, char
     destroy_command(&environ, &command);
 }
 
-TestSuite *builtin_tests(void) {
+TestSuite *builtin_tests(void)
+{
     TestSuite *suite;
 
     suite = create_test_suite();

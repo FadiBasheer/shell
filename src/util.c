@@ -1,5 +1,6 @@
 #include "util.h"
 #include "state.h"
+#include "command.h"
 #include <dc_posix/dc_posix_env.h>
 #include <stdio.h>
 #include <string.h>
@@ -62,17 +63,22 @@ char **parse_path(const struct dc_posix_env *env, struct dc_error *err, const ch
 
 
 void do_reset_state(const struct dc_posix_env *env, struct dc_error *err, struct state *state) {
+    free(state->current_line);
     state->current_line = NULL;
     state->current_line_length = 0;
+    destroy_command(env, state->command);
     state->command = NULL;
     state->fatal_error = false;
-    err->message = NULL;
-    err->file_name = NULL;
-    err->function_name = NULL;
-    err->line_number = 0;
-    err->type = 0;
-    err->err_code = 0;
-    err->reporter = NULL;
+    dc_error_reset(err);
+
+
+//    err->message = NULL;
+//    err->file_name = NULL;
+//    err->function_name = NULL;
+//    err->line_number = 0;
+//    err->type = 0;
+//    err->err_code = 0;
+//    err->reporter = NULL;
 }
 
 /**

@@ -13,9 +13,7 @@ static void test_parse_command(const char *expected_line,
                                bool expected_stdout_overwrite,
                                const char *expected_stderr_file,
                                bool expected_stderr_overwrite);
-
 static void expand_path(const char *expected_file, char **expanded_file);
-
 static void test_destroy_command(const char *expected_line);
 
 Describe(command);
@@ -23,16 +21,19 @@ Describe(command);
 static struct dc_posix_env environ;
 static struct dc_error error;
 
-BeforeEach(command) {
+BeforeEach(command)
+{
     dc_posix_env_init(&environ, NULL);
     dc_error_init(&error, NULL);
 }
 
-AfterEach(command) {
+AfterEach(command)
+{
     dc_error_reset(&error);
 }
 
-Ensure(command, parse_command) {
+Ensure(command, parse_command)
+{
     char **argv;
 
     argv = dc_strs_to_array(&environ, &error, 1, NULL);
@@ -139,7 +140,6 @@ Ensure(command, parse_command) {
     dc_strs_destroy_array(&environ, 1, argv);
     free(argv);
 
-
     argv = dc_strs_to_array(&environ, &error, 1, NULL);
     test_parse_command("./a.out < ~/abc/in.txt >> ~/out.txt 2>>~/err.txt",
                        "./a.out",
@@ -201,7 +201,8 @@ static void test_parse_command(const char *expected_line,
                                const char *expected_stdout_file,
                                bool expected_stdout_overwrite,
                                const char *expected_stderr_file,
-                               bool expected_stderr_overwrite) {
+                               bool expected_stderr_overwrite)
+{
     struct state state;
     char *expanded_stdin_file;
     char *expanded_stdout_file;
@@ -218,17 +219,14 @@ static void test_parse_command(const char *expected_line,
     state.command->line = strdup(expected_line);
     parse_command(&environ, &error, &state, state.command);
     assert_that(state.command->line, is_equal_to_string(expected_line));
-
-    printf("state.command->command,: %s\n", state.command->command);
-    printf("expected_command: %s\n", expected_command);
-
     assert_that(state.command->command, is_equal_to_string(expected_command));
     assert_that(state.command->argc, is_equal_to(expected_argc));
 
     assert_that(state.command->argv[0], is_null);
     assert_that(state.command->argv[expected_argc], is_null);
 
-    for (size_t i = 1; i < expected_argc; i++) {
+    for(size_t i = 1; i < expected_argc; i++)
+    {
         assert_that(state.command->argv[i], is_equal_to_string(expected_argv[i]));
     }
 
@@ -244,25 +242,32 @@ static void test_parse_command(const char *expected_line,
     destroy_state(&environ, &error, &state);
 }
 
-static void expand_path(const char *expected_file, char **expanded_file) {
-    if (expected_file == NULL) {
+static void expand_path(const char *expected_file, char **expanded_file)
+{
+    if(expected_file == NULL)
+    {
         *expanded_file = NULL;
-    } else {
+    }
+    else
+    {
         dc_expand_path(&environ, &error, expanded_file, expected_file);
 
-        if (dc_error_has_error(&error)) {
+        if(dc_error_has_error(&error))
+        {
             fail_test(expected_file);
         }
     }
 }
 
-Ensure(command, destroy_command) {
+Ensure(command, destroy_command)
+{
     test_destroy_command("ls");
     test_destroy_command("ls -al");
     test_destroy_command("ls -al < in > out 2> err");
 }
 
-static void test_destroy_command(const char *expected_line) {
+static void test_destroy_command(const char *expected_line)
+{
     struct state state;
 
     state.stdin = NULL;
@@ -282,7 +287,8 @@ static void test_destroy_command(const char *expected_line) {
     destroy_state(&environ, &error, &state);
 }
 
-TestSuite *command_tests(void) {
+TestSuite *command_tests(void)
+{
     TestSuite *suite;
 
     suite = create_test_suite();

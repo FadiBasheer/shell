@@ -38,12 +38,12 @@ char *read_command_line(const struct dc_posix_env *env, struct dc_error *err, FI
 
 
 
-    char *line = NULL;
+    char *line;
     size_t len = 0;
     ssize_t read;
     getline(&line, &len, stream);
     line = strdup(dc_str_trim(env, line));
     *line_size = dc_strlen(env, line);
-    printf("--\nlineL %s\n--", line);
+    printf("--\nlineL: %s\n--", line);
     return line;
 }

@@ -41,7 +41,6 @@ int run_shell(const struct dc_posix_env *env, struct dc_error *error, FILE *in, 
     int ret_val = 0;
     struct dc_fsm_info *fsm_info;
 
-
     fsm_info = dc_fsm_info_create(env, error, "shell");
     if (dc_error_has_no_error(error)) {
         struct state s;
