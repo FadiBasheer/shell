@@ -9,7 +9,7 @@
 #include <dc_posix/dc_unistd.h>
 
 
-void redirect(const struct dc_posix_env *env, struct dc_error *err, struct command *command) {
+    void redirect(const struct dc_posix_env *env, struct dc_error *err, struct command *command) {
     if (command->stdin_file != NULL) {
         int input_fds = open(command->stdin_file, O_RDONLY);
 

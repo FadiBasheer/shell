@@ -28,9 +28,11 @@
 int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
     char *str;
     struct state *s = (struct state *) arg;
-
     regex_t regex_in;
+    regex_t regex_out;
+    regex_t regex_err;
     int ret_1;
+
     ret_1 = regcomp(&regex_in, "[ \\t\\f\\v]<.*", 0);
     if (ret_1) {
         fprintf(stderr, "Could not compile regex\n");
@@ -38,7 +40,6 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg) 
     }
     s->in_redirect_regex = &regex_in;
 
-    regex_t regex_out;
     int ret_2;
     ret_2 = regcomp(&regex_out, "[ \\t\\f\\v][1^2]?>[>]?.*", 0);
     if (ret_2) {
@@ -47,7 +48,6 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg) 
     }
     s->out_redirect_regex = &regex_out;
 
-    regex_t regex_err;
     int ret_3;
     ret_3 = regcomp(&regex_err, "[ \\t\\f\\v]<.*", 0);
     if (ret_3) {
@@ -58,10 +58,11 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg) 
 
     str = get_path(env, err);
     s->path = parse_path(env, err, str);
+
     s->prompt = get_prompt(env, err);
+    s->max_line_length = (size_t) sysconf(_SC_ARG_MAX);
     s->current_line = NULL;
     s->current_line_length = 0;
-    s->max_line_length = (size_t) sysconf(_SC_ARG_MAX);
     s->fatal_error = false;
     s->command = NULL;
     return READ_COMMANDS;
@@ -217,8 +218,16 @@ int execute_commands(const struct dc_posix_env *env, struct dc_error *err, void 
         builtin_cd(env, err, s->command, s->stderr);
     } else if (strcmp(s->command->command, "exit") == 0) {
         return EXIT;
+    } else {
+        execute(env, err, s->command, s->path);
+        if (dc_error_has_error(err)) {
+            s->fatal_error = true;
+        }
     }
-
+    fprintf(s->stdout, "%d\n", s->command->exit_code);
+    if (s->fatal_error) {
+        return ERROR;
+    }
     return RESET_STATE;
 }
 

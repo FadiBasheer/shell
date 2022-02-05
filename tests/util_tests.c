@@ -5,7 +5,6 @@
 #include <dc_util/strings.h>
 
 static void check_state_reset(const struct dc_error *error, const struct state *state, FILE *in, FILE *out, FILE *err);
-
 static void test_parse_path(const char *path_str, char **dirs);
 
 Describe(util);
@@ -13,16 +12,19 @@ Describe(util);
 static struct dc_posix_env environ;
 static struct dc_error error;
 
-BeforeEach(util) {
+BeforeEach(util)
+{
     dc_posix_env_init(&environ, NULL);
     dc_error_init(&error, NULL);
 }
 
-AfterEach(util) {
+AfterEach(util)
+{
     dc_error_reset(&error);
 }
 
-Ensure(util, get_prompt) {
+Ensure(util, get_prompt)
+{
     char *prompt;
 
     unsetenv("PS1");
@@ -36,18 +38,19 @@ Ensure(util, get_prompt) {
     free(prompt);
 }
 
-Ensure(util, get_path) {
+Ensure(util, get_path)
+{
     static const char *paths[] =
             {
-                    "",
-                    ".",
-                    "abc",
-                    "abc:def",
-                    "/usr/bin:.",
-                    ".:/usr/bin",
-                    ":",
-                    "/usr/bin:/bin:/usr/local/bin",
-                    NULL,
+                "",
+                ".",
+                "abc",
+                "abc:def",
+                "/usr/bin:.",
+                ".:/usr/bin",
+                ":",
+                "/usr/bin:/bin:/usr/local/bin",
+                NULL,
             };
     char *path;
 
@@ -55,7 +58,8 @@ Ensure(util, get_path) {
     path = get_path(&environ, &error);
     assert_that(path, is_null);
 
-    for (int i = 0; paths[i]; i++) {
+    for(int i = 0; paths[i]; i++)
+    {
         setenv("PATH", paths[i], true);
         path = get_path(&environ, &error);
         assert_that(path, is_equal_to_string(paths[i]));
@@ -64,21 +68,24 @@ Ensure(util, get_path) {
     }
 }
 
-Ensure(util, parse_path) {
+Ensure(util, parse_path)
+{
     test_parse_path("", dc_strs_to_array(&environ, &error, 1, NULL));
-    test_parse_path("a", dc_strs_to_array(&environ, &error, 2, "a", NULL));
-    test_parse_path("a:b", dc_strs_to_array(&environ, &error, 3, "a", "b", NULL));
-    test_parse_path("a:bcde:f", dc_strs_to_array(&environ, &error, 4, "a", "bcde", "f", NULL));
-    test_parse_path("a::b", dc_strs_to_array(&environ, &error, 3, "a", "b", NULL));
+    test_parse_path("a", dc_strs_to_array(&environ, &error, 2, "a", NULL) );
+    test_parse_path("a:b", dc_strs_to_array(&environ, &error, 3, "a", "b", NULL) );
+    test_parse_path("a:bcde:f", dc_strs_to_array(&environ, &error, 4, "a", "bcde", "f", NULL) );
+    test_parse_path("a::b", dc_strs_to_array(&environ, &error, 3, "a", "b", NULL) );
 }
 
-static void test_parse_path(const char *path_str, char **dirs) {
+static void test_parse_path(const char *path_str, char **dirs)
+{
     char **path_dirs;
     size_t i;
 
     path_dirs = parse_path(&environ, &error, path_str);
 
-    for (i = 0; dirs[i] && path_dirs[i]; i++) {
+    for(i = 0; dirs[i] && path_dirs[i]; i++)
+    {
         assert_that(path_dirs[i], is_equal_to_string(dirs[i]));
         free(dirs[i]);
         free(path_dirs[i]);
@@ -90,7 +97,8 @@ static void test_parse_path(const char *path_str, char **dirs) {
     free(path_dirs);
 }
 
-Ensure(util, do_reset_state) {
+Ensure(util, do_reset_state)
+{
     struct state state;
 
     state.stdin = stdin;
@@ -135,7 +143,8 @@ Ensure(util, do_reset_state) {
     check_state_reset(&error, &state, stdin, stdout, stderr);
 }
 
-static void check_state_reset(const struct dc_error *error, const struct state *state, FILE *in, FILE *out, FILE *err) {
+static void check_state_reset(const struct dc_error *error, const struct state *state, FILE *in, FILE *out, FILE *err)
+{
     assert_false(state->fatal_error);
     assert_that(state->current_line, is_null);
     assert_that(state->current_line_length, is_equal_to(0));
@@ -154,7 +163,8 @@ static void check_state_reset(const struct dc_error *error, const struct state *
     assert_that(error->err_code, is_equal_to(0));
 }
 
-Ensure(util, state_to_string) {
+Ensure(util, state_to_string)
+{
     struct state state;
     char *str;
 
@@ -208,7 +218,8 @@ Ensure(util, state_to_string) {
     free(state.current_line);
 }
 
-TestSuite *util_tests(void) {
+TestSuite *util_tests(void)
+{
     TestSuite *suite;
 
     suite = create_test_suite();
