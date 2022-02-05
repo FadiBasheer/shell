@@ -61,21 +61,16 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
 
     strcpy(string, command->line);
 
-    printf("stringstringstringstring: %s\n", command->line);
-
     /////////////////////////////////////////////////// err ////////////////////////////////////
     matched = regexec(&regex_err, string, 1, &match, 0);
-    printf("matched:%d\n", matched);
     if (matched == 0) {
         char *str;
         regoff_t length = match.rm_eo - match.rm_so;
         size_t rest = strlen(string) - length;
-        printf("%zu\n", rest);
 
         str = malloc(length + 1);
         strncpy(str, &string[match.rm_so], length);
         str[length] = '\0';
-        printf("%s\n", str);
 
         char *ret;
         ret = strstr(str, ">>");
@@ -94,7 +89,6 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
             strncpy(str2, &str[match.rm_so], length2);
             str2[length2] = '\0';
             expand_path(env, err, str2, &expanded_stderr_file);
-            printf("\nexpanded_stdout_file:%s\n", expanded_stderr_file);
             command->stderr_file = strdup(expanded_stderr_file);
             free(str2);
         }
@@ -103,10 +97,8 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
         temp = malloc(rest);
         strncpy(temp, &string[0], rest);
         temp[rest] = '\0';
-        printf("string rest 1: %s\n", temp);
 
         string = strdup(temp);
-        printf("original string: %s\n", string);
         free(temp);
         free(str);
     }
@@ -114,17 +106,14 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
 
     ///////////////////////////////////////////////// out ////////////////////////////////////////
     matched = regexec(&regex_out, string, 1, &match, 0);
-    printf("matched:%d\n", matched);
     if (matched == 0) {
         char *str;
         regoff_t length = match.rm_eo - match.rm_so;
         size_t rest = strlen(string) - length;
-        printf("%zu\n", rest);
 
         str = malloc(length + 1);
         strncpy(str, &string[match.rm_so], length);
         str[length] = '\0';
-        printf("str out: %s\n", str);
 
         char *ret;
         ret = strstr(str, ">>");
@@ -146,7 +135,6 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
             strncpy(str2, &str[match.rm_so], length2);
             str2[length2] = '\0';
             expand_path(env, err, str2, &expanded_stdout_file);
-            printf("\nexpanded_stdout_file:%s\n", expanded_stdout_file);
             command->stdout_file = strdup(expanded_stdout_file);
             free(str2);
         }
@@ -155,10 +143,8 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
         temp = malloc(rest);
         strncpy(temp, &string[0], rest);
         temp[rest] = '\0';
-        printf("string rest 2: %s\n", temp);
 
         string = strdup(temp);
-        printf("original string: %s\n", string);
         free(temp);
         free(str);
     }
@@ -166,17 +152,14 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
 
     ////////////////////////////////////////////////////////////////// IN ///////////////////////
     matched = regexec(&regex_in, string, 1, &match, 0);
-    printf("matched:%d\n", matched);
     if (matched == 0) {
         char *str;
         regoff_t length = match.rm_eo - match.rm_so;
         size_t rest = strlen(string) - length;
-        printf("%zu\n", rest);
 
         str = malloc(length + 1);
         strncpy(str, &string[match.rm_so], length);
         str[length] = '\0';
-        printf("%s\n", str);
 
         status_err = regcomp(&regex_out2, "[^< *]*$", REG_EXTENDED);
         status_check(status_err, regex_out2);
@@ -190,7 +173,6 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
             strncpy(str2, &str[match.rm_so], length2);
             str2[length2] = '\0';
             expand_path(env, err, str2, &expanded_stdin_file);
-            printf("\nexpanded_stdin_file:%s\n", expanded_stdin_file);
             command->stdin_file = strdup(expanded_stdin_file);
             free(str2);
         }
@@ -199,10 +181,8 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
         temp = malloc(rest);
         strncpy(temp, &string[0], rest);
         temp[rest] = '\0';
-        printf("string rest 3: %s\n", temp);
 
         string = strdup(temp);
-        printf("original string: %s\n", string);
         free(temp);
         free(str);
     }
@@ -217,16 +197,9 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
     state->command->argc = p.we_wordc;
 
     for (int i = 0; i < p.we_wordc; i++) {
-        printf("dasd: %s\n", w[i]);
         state->command->argv[i] = strdup(w[i]);
     }
     state->command->argv[0] = NULL;
-    printf("wordc: %zu\n", p.we_wordc);
-
-
-    printf("comanddddd: %s\n\n\n", string);
-
-    printf("fdsafsdfsadfdfasafsadfafsaffssfsafs: %s\n\n\n", w[0]);
     state->command->command = strdup(w[0]);
     wordfree(&p);
     free(string);
@@ -248,8 +221,15 @@ void destroy_command(const struct dc_posix_env *env, struct command *command) {
         free(command->stderr_file);
         command->stderr_file = NULL;
 
-        command->argc = 0;
+        if(command->argv!=NULL){
+            for (char *c = *command->argv; c; c = *++command->argv) {
+                free(c);
+            }
+        }
+
         command->argv = NULL;
+        command->argc = 0;
+
         command->stderr_overwrite = false;
         command->stdout_overwrite = false;
         command->exit_code = 0;

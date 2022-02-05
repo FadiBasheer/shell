@@ -142,9 +142,6 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *ar
 
     command = read_command_line(env, err, s->stdin, &line_size);
 
-    printf("command: %s\n", command);
-    printf("line_size: %zu\n", line_size);
-
     if (dc_error_has_error(err)) {
         s->fatal_error = true;
         return ERROR;
@@ -152,16 +149,14 @@ int read_commands(const struct dc_posix_env *env, struct dc_error *err, void *ar
     if (strlen(command) == 0) {
         s->current_line = strdup("");
         s->current_line_length = 0;
-
-        printf("RESET_STATE\n");
         return RESET_STATE;
     }
     s->current_line = strdup(command);
     s->current_line_length = line_size;
 
-//    free(prompt);
-//    free(command);
-//    free(working_dir);
+    free(prompt);
+    free(command);
+    free(working_dir);
 
     return SEPARATE_COMMANDS;
 }
@@ -186,7 +181,6 @@ int separate_commands(const struct dc_posix_env *env, struct dc_error *err, void
     s->command->stdout_file = NULL;
     s->command->stderr_file = NULL;
     s->command->exit_code = 0;
-    printf(" s->command->line: %s\n", s->current_line);
     return PARSE_COMMANDS;
 }
 

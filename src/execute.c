@@ -14,7 +14,7 @@ void redirect(const struct dc_posix_env *env, struct dc_error *err, struct comma
         int input_fds = open(command->stdin_file, O_RDONLY);
 
         if (dup2(input_fds, STDIN_FILENO) < 0) {
-            printf("Unable to duplicate file descriptor11111.");
+            close(input_fds);
             exit(EXIT_FAILURE);
         }
         close(input_fds);
@@ -27,10 +27,10 @@ void redirect(const struct dc_posix_env *env, struct dc_error *err, struct comma
             fd = open(command->stdout_file, O_RDWR | O_CREAT | O_APPEND, mode);
         } else {
             mode_t mode = S_IRWXO | S_IRWXG | S_IRWXU;
-            fd = open(command->stdout_file, O_RDWR | O_TRUNC, mode);
+            fd = open(command->stdout_file, O_RDWR | O_TRUNC | O_CREAT, mode);
         }
         if (dup2(fd, STDOUT_FILENO) < 0) {
-            printf("Unable to duplicate file descriptor22222.");
+            close(fd);
             exit(EXIT_FAILURE);
         }
         close(fd);
@@ -43,10 +43,10 @@ void redirect(const struct dc_posix_env *env, struct dc_error *err, struct comma
             fd = open(command->stderr_file, O_RDWR | O_CREAT | O_APPEND, mode);
         } else {
             mode_t mode = S_IRWXO | S_IRWXG | S_IRWXU;
-            fd = open(command->stderr_file, O_RDWR | O_TRUNC, mode);
+            fd = open(command->stderr_file, O_RDWR | O_TRUNC | O_CREAT, mode);
         }
         if (dup2(fd, STDERR_FILENO) < 0) {
-            printf("\nUnable to duplicate file descriptor3333.\n\n");
+            close(fd);
             exit(EXIT_FAILURE);
         }
         close(fd);
@@ -76,7 +76,29 @@ void run(const struct dc_posix_env *env, struct dc_error *err, struct command *c
 }
 
 int handle_run_error(const struct dc_posix_env *env, struct dc_error *err) {
-    return 0;
+    if (dc_error_is_errno(err, E2BIG)) {
+        return 1;
+    } else if (dc_error_is_errno(err, EACCES)) {
+        return 2;
+    } else if (dc_error_is_errno(err, EINVAL)) {
+        return 3;
+    } else if (dc_error_is_errno(err, ELOOP)) {
+        return 4;
+    } else if (dc_error_is_errno(err, ENAMETOOLONG)) {
+        return 5;
+    } else if (dc_error_is_errno(err, ENOENT)) {
+        return 127;
+    } else if (dc_error_is_errno(err, ENOTDIR)) {
+        return 6;
+    } else if (dc_error_is_errno(err, ENOEXEC)) {
+        return 7;
+    } else if (dc_error_is_errno(err, ENOMEM)) {
+        return 8;
+    } else if (dc_error_is_errno(err, ETXTBSY)) {
+        return 9;
+    } else {
+        return 125;
+    }
 }
 
 /**
@@ -90,12 +112,11 @@ int handle_run_error(const struct dc_posix_env *env, struct dc_error *err) {
  * @param path the directories to search for the command
  */
 void execute(const struct dc_posix_env *env, struct dc_error *err, struct command *command, char **path) {
-    pid_t pid;
-    int status = 0;
-
+    int pid;
     pid = fork();
 
     if (pid == 0) {
+        int status = 0;
         // Child process
         redirect(env, err, command);
         if (dc_error_has_error(err)) {
@@ -106,9 +127,9 @@ void execute(const struct dc_posix_env *env, struct dc_error *err, struct comman
         status = handle_run_error(env, err);
         exit(status);
     } else {
+        int status = 0;
         waitpid(pid, &status, 0);
         if (WIFEXITED(status)) {
-            printf("statusst : %d\n", status);
             command->exit_code = WEXITSTATUS(status);
         }
     }

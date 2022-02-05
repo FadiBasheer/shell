@@ -38,26 +38,26 @@ Ensure(execute, execute) {
     strcpy(template, "/tmp/fileXXXXXX");
     test_execute("ls", 1, argv, path, true, 0, template, NULL);
 
-//    argv = dc_strs_to_array(&environ, &error, 3, NULL, "asdasdasdfddfgsdfgasderdfdsf", NULL);
-//    strcpy(template, "/tmp/fileXXXXXX");
-//    test_execute("ls", 2, argv, path, false, ENOENT, NULL, template);
-//
-//    dc_strs_destroy_array(&environ, 3, path);
-//    free(path);
-//
-//    path = dc_strs_to_array(&environ, &error, 1, NULL);
-//
-//    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
-//    test_execute("ls", 1, argv, path, true, 127, NULL, NULL);
-//
-//    dc_strs_destroy_array(&environ, 1, path);
-//    free(path);
-//    path = dc_strs_to_array(&environ, &error, 2, "/", NULL);
-//
-//    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
-//    test_execute("ls", 1, argv, path, true, 127, NULL, NULL);
-//
-//    dc_strs_destroy_array(&environ, 2, path);
+    argv = dc_strs_to_array(&environ, &error, 3, NULL, "asdasdasdfddfgsdfgasderdfdsf", NULL);
+    strcpy(template, "/tmp/fileXXXXXX");
+    test_execute("ls", 2, argv, path, false, ENOENT, NULL, template);
+
+    dc_strs_destroy_array(&environ, 3, path);
+    free(path);
+
+    path = dc_strs_to_array(&environ, &error, 1, NULL);
+
+    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
+    test_execute("ls", 1, argv, path, true, 127, NULL, NULL);
+
+    dc_strs_destroy_array(&environ, 1, path);
+    free(path);
+    path = dc_strs_to_array(&environ, &error, 2, "/", NULL);
+
+    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
+    test_execute("ls", 1, argv, path, true, 127, NULL, NULL);
+
+    dc_strs_destroy_array(&environ, 2, path);
     free(path);
 }
 

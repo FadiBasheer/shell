@@ -1,12 +1,8 @@
 #include "builtins.h"
-#include "state.h"
 #include <dc_posix/dc_posix_env.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#include <dc_posix/dc_stdlib.h>
 #include <unistd.h>
-#include <dc_util/filesystem.h>
 #include <dc_util/path.h>
 #include <dc_posix/dc_unistd.h>
 
