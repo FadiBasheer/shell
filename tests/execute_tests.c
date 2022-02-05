@@ -31,8 +31,8 @@ Ensure(execute, execute) {
 
     path = dc_strs_to_array(&environ, &error, 3, "/bin", "/usr/bin", NULL);
 
-//    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
-//    test_execute("pwd", 1, argv, path, true, 0, NULL, NULL);
+    argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
+    test_execute("pwd", 1, argv, path, true, 0, NULL, NULL);
 
     argv = dc_strs_to_array(&environ, &error, 2, NULL, NULL);
     strcpy(template, "/tmp/fileXXXXXX");
