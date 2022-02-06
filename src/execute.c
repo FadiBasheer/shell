@@ -78,26 +78,37 @@ void run(const struct dc_posix_env *env, struct dc_error *err, struct command *c
 
 int handle_run_error(const struct dc_posix_env *env, struct dc_error *err) {
     if (dc_error_is_errno(err, E2BIG)) {
+        printf("1111111111111111111");
         return 1;
     } else if (dc_error_is_errno(err, EACCES)) {
+        printf("222222222222");
         return 2;
     } else if (dc_error_is_errno(err, EINVAL)) {
+        printf("333333333333");
         return 3;
     } else if (dc_error_is_errno(err, ELOOP)) {
+        printf("4444444444444");
         return 4;
     } else if (dc_error_is_errno(err, ENAMETOOLONG)) {
+        printf("5");
         return 5;
     } else if (dc_error_is_errno(err, ENOENT)) {
+        printf("127");
         return 127;
     } else if (dc_error_is_errno(err, ENOTDIR)) {
+        printf("5");
         return 6;
     } else if (dc_error_is_errno(err, ENOEXEC)) {
+        printf("5");
         return 7;
     } else if (dc_error_is_errno(err, ENOMEM)) {
+        printf("5");
         return 8;
     } else if (dc_error_is_errno(err, ETXTBSY)) {
+        printf("5");
         return 9;
     } else {
+        printf("5");
         return 125;
     }
 }

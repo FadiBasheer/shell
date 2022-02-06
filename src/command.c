@@ -6,7 +6,6 @@
 #include <string.h>
 #include <dc_util/path.h>
 
-
 static void status_check(int status, regex_t regex) {
     if (status != 0) {
         size_t size;
@@ -55,7 +54,6 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
     status_check(status_in, regex_in);
 
     const char s[2] = " ";
-    char *token;
 
     string = malloc(strlen(command->line) + 1);  // Space for length plus nul
 
@@ -120,7 +118,6 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
         if (ret)
             state->command->stdout_overwrite = true;
 
-
         status_err = regcomp(&regex_out2, "[^> ]*$", REG_EXTENDED);
 
 
@@ -151,6 +148,7 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
     regfree(&regex_out);
 
     ////////////////////////////////////////////////////////////////// IN ///////////////////////
+    int flag = 0;
     matched = regexec(&regex_in, string, 1, &match, 0);
     if (matched == 0) {
         char *str;
@@ -185,23 +183,28 @@ void parse_command(const struct dc_posix_env *env, struct dc_error *err,
         string = strdup(temp);
         free(temp);
         free(str);
+        flag = 1;
     }
     regfree(&regex_in);
+    if (flag == 1) {
+        wordexp_t p;
+        char **w;
 
-    wordexp_t p;
-    char **w;
+        wordexp(string, &p, 0);
+        w = p.we_wordv;
+        state->command->argv = calloc(p.we_wordc + 2, sizeof(char *));
+        state->command->argc = p.we_wordc;
 
-    wordexp(string, &p, 0);
-    w = p.we_wordv;
-    state->command->argv = calloc(p.we_wordc + 2, sizeof(char *));
-    state->command->argc = p.we_wordc;
-
-    for (int i = 0; i < p.we_wordc; i++) {
-        state->command->argv[i] = strdup(w[i]);
+        for (int i = 0; i < p.we_wordc; i++) {
+            state->command->argv[i] = strdup(w[i]);
+        }
+        state->command->argv[0] = NULL;
+        state->command->command = strdup(w[0]);
+        wordfree(&p);
+    } else {
+        state->command->command = strdup(string);
+        fprintf(stdout, "%s \"%s\"", "enable to parse", string);
     }
-    state->command->argv[0] = NULL;
-    state->command->command = strdup(w[0]);
-    wordfree(&p);
     free(string);
 }
 
@@ -221,15 +224,13 @@ void destroy_command(const struct dc_posix_env *env, struct command *command) {
         free(command->stderr_file);
         command->stderr_file = NULL;
 
-        if(command->argv!=NULL){
+        if (command->argv != NULL) {
             for (char *c = *command->argv; c; c = *++command->argv) {
                 free(c);
             }
         }
-
         command->argv = NULL;
         command->argc = 0;
-
         command->stderr_overwrite = false;
         command->stdout_overwrite = false;
         command->exit_code = 0;

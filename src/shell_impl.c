@@ -1,4 +1,4 @@
-#include <dc_posix/dc_stdlib.h>
+
 #include <unistd.h>
 #include <dc_util/filesystem.h>
 #include <stdlib.h>
@@ -6,7 +6,6 @@
 #include <command.h>
 #include "shell_impl.h"
 #include "util.h"
-#include "shell_impl.h"
 #include "state.h"
 #include "input.h"
 #include "builtins.h"
