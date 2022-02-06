@@ -77,7 +77,6 @@ int init_state(const struct dc_posix_env *env, struct dc_error *err, void *arg) 
  * @return DC_FSM_EXIT
  */
 int destroy_state(const struct dc_posix_env *env, struct dc_error *err, void *arg) {
-    char *str;
     struct state *s = (struct state *) arg;
     //regfree(s->in_redirect_regex);
     s->in_redirect_regex = NULL;

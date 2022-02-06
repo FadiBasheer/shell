@@ -6,7 +6,6 @@
 #include <shell.h>
 #include <shell_impl.h>
 #include <dc_fsm/fsm.h>
-#include <dc_posix/dc_time.h>
 
 
 static struct dc_fsm_transition transitions[] = {
